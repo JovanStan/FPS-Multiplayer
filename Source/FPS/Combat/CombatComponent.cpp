@@ -8,30 +8,30 @@ UCombatComponent::UCombatComponent()
 
 void UCombatComponent::Initiate_CycleWeapon()
 {
-	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Cycle Weapon");
 }
 
 void UCombatComponent::Initiate_FireWeapon_Pressed()
 {
-	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "Weapon Pressed");
 }
 
 void UCombatComponent::Initiate_FireWeapon_Released()
 {
-	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "Weapon Released");
 }
 
 void UCombatComponent::Initiate_ReloadWeapon()
 {
-	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, "Reload Weapon");
 }
 
 void UCombatComponent::Initiate_Aim_Pressed()
 {
-	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Silver, "Aim Pressed");
 }
 
 void UCombatComponent::Initiate_Aim_Released()
 {
-	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Silver, "Aim Released");
 }

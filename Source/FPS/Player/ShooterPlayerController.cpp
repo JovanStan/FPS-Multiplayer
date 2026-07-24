@@ -2,13 +2,15 @@
 #include "ShooterPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "GameFramework/Character.h"
+#include "FPS/Characters/ShooterCharacter.h"
+#include "FPS/Combat/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AShooterPlayerController::AShooterPlayerController()
 {
 	bReplicates = true;
 }
+
 
 void AShooterPlayerController::BeginPlay()
 {
@@ -18,7 +20,10 @@ void AShooterPlayerController::BeginPlay()
 	{
 		Subsystem->AddMappingContext(ShooterContext, 0);
 	}
+	
+	CachedShooterCharacter = Cast<AShooterCharacter>(GetCharacter());
 }
+
 
 void AShooterPlayerController::SetupInputComponent()
 {
@@ -31,6 +36,13 @@ void AShooterPlayerController::SetupInputComponent()
 	
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AShooterPlayerController::Input_Jump);
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AShooterPlayerController::Input_Crouch);
+	
+	EnhancedInputComponent->BindAction(CycleWeaponAction, ETriggerEvent::Started, this, &AShooterPlayerController::Input_CycleWeapon);
+	EnhancedInputComponent->BindAction(FireWeaponAction, ETriggerEvent::Started, this, &AShooterPlayerController::Input_FireWeapon_Pressed);
+	EnhancedInputComponent->BindAction(FireWeaponAction, ETriggerEvent::Completed, this, &AShooterPlayerController::Input_FireWeapon_Released);
+	EnhancedInputComponent->BindAction(AimWeaponAction, ETriggerEvent::Started, this, &AShooterPlayerController::Input_Aim_Pressed);
+	EnhancedInputComponent->BindAction(AimWeaponAction, ETriggerEvent::Completed, this, &AShooterPlayerController::Input_Aim_Released);
+	EnhancedInputComponent->BindAction(ReloadWeaponAction, ETriggerEvent::Started, this, &AShooterPlayerController::Input_ReloadWeapon);
 }
 
 void AShooterPlayerController::Input_Crouch()
@@ -82,4 +94,52 @@ void AShooterPlayerController::Input_Look(const FInputActionValue& Value)
 	
 	AddYawInput(InputAxisVector.X);
 	AddPitchInput(InputAxisVector.Y);
+}
+
+void AShooterPlayerController::Input_CycleWeapon()
+{
+	if (CachedShooterCharacter->GetCombatComponent())
+	{
+		CachedShooterCharacter->GetCombatComponent()->Initiate_CycleWeapon();
+	}
+}
+
+void AShooterPlayerController::Input_ReloadWeapon()
+{
+	if (CachedShooterCharacter->GetCombatComponent())
+	{
+		CachedShooterCharacter->GetCombatComponent()->Initiate_ReloadWeapon();
+	}
+}
+
+void AShooterPlayerController::Input_FireWeapon_Pressed()
+{
+	if (CachedShooterCharacter->GetCombatComponent())
+	{
+		CachedShooterCharacter->GetCombatComponent()->Initiate_FireWeapon_Pressed();
+	}
+}
+
+void AShooterPlayerController::Input_FireWeapon_Released()
+{
+	if (CachedShooterCharacter->GetCombatComponent())
+	{
+		CachedShooterCharacter->GetCombatComponent()->Initiate_FireWeapon_Released();
+	}
+}
+
+void AShooterPlayerController::Input_Aim_Pressed()
+{
+	if (CachedShooterCharacter->GetCombatComponent())
+	{
+		CachedShooterCharacter->GetCombatComponent()->Initiate_Aim_Pressed();
+	}
+}
+
+void AShooterPlayerController::Input_Aim_Released()
+{
+	if (CachedShooterCharacter->GetCombatComponent())
+	{
+		CachedShooterCharacter->GetCombatComponent()->Initiate_Aim_Released();
+	}
 }

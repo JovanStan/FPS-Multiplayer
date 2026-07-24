@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
+class UInputAction;
 class UCombatComponent;
 class UCameraComponent;
 class USpringArmComponent;
@@ -32,4 +33,7 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<UCombatComponent> CombatComponent;
+	
+public:
+	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComponent; }
 };

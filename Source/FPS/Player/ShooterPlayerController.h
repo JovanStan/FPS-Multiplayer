@@ -5,6 +5,8 @@
 #include "GameFramework/PlayerController.h"
 #include "ShooterPlayerController.generated.h"
 
+class AShooterCharacter;
+class UCombatComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
@@ -25,6 +27,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "FPS|Input")
 	TObjectPtr<UInputMappingContext> ShooterContext;
 	
+	// Input Actions
 	UPROPERTY(EditAnywhere, Category = "FPS|Input")
 	TObjectPtr<UInputAction> MoveAction;
 	UPROPERTY(EditAnywhere, Category = "FPS|Input")
@@ -38,4 +41,24 @@ private:
 	void Input_Jump();
 	void Input_Move(const FInputActionValue& Value);
 	void Input_Look(const FInputActionValue& Value);
+	
+	// Combat Input Actions
+	UPROPERTY(EditAnywhere, Category="FPS|Input")
+	TObjectPtr<UInputAction> CycleWeaponAction;
+	UPROPERTY(EditAnywhere, Category="FPS|Input")
+	TObjectPtr<UInputAction> FireWeaponAction;
+	UPROPERTY(EditAnywhere, Category="FPS|Input")
+	TObjectPtr<UInputAction> ReloadWeaponAction;
+	UPROPERTY(EditAnywhere, Category="FPS|Input")
+	TObjectPtr<UInputAction> AimWeaponAction;
+	
+	void Input_CycleWeapon();
+	void Input_ReloadWeapon();
+	void Input_FireWeapon_Pressed();
+	void Input_FireWeapon_Released();
+	void Input_Aim_Pressed();
+	void Input_Aim_Released();
+	
+	UPROPERTY()
+	TObjectPtr<AShooterCharacter> CachedShooterCharacter;
 };
