@@ -15,7 +15,6 @@ class FPS_API AShooterCharacter : public ACharacter
 
 public:
 	AShooterCharacter();
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 	virtual void BeginPlay() override;
