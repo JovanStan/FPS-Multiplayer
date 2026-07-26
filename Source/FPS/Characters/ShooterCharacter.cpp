@@ -3,6 +3,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "FPS/Combat/CombatComponent.h"
+#include "FPS/Data/WeaponData.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -38,6 +39,25 @@ AShooterCharacter::AShooterCharacter()
 	
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("Combat Component");
 	CombatComponent->SetIsReplicated(true);
+}
+
+void AShooterCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	if (IsValid(CombatComponent))
+	{
+		CombatComponent->SpawnInventory();
+	}
+}
+
+FName AShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const
+{
+	if (CombatComponent->WeaponData)
+	{
+		return CombatComponent->WeaponData->GripPoints.FindChecked(WeaponType);
+	}
+	return NAME_None;
 }
 
 void AShooterCharacter::BeginPlay()

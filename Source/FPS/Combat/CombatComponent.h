@@ -6,6 +6,9 @@
 #include "CombatComponent.generated.h"
 
 
+class AWeapon;
+class UWeaponData;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPS_API UCombatComponent : public UActorComponent
 {
@@ -21,4 +24,16 @@ public:
 	void Initiate_ReloadWeapon();
 	void Initiate_Aim_Pressed();
 	void Initiate_Aim_Released();
+	
+	UPROPERTY(EditDefaultsOnly, Category="FPS|Weapon")
+	TObjectPtr<UWeaponData> WeaponData;
+	
+	void SpawnInventory();
+	void DestroyInventory();
+	
+private:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AWeapon> DefaultWeaponClass;
+	
+	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass);
 };
