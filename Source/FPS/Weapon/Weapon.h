@@ -16,12 +16,12 @@ public:
 	virtual void OnRep_Instigator() override;
 	
 	void AttachToOwningPawn() const;
-
-protected:
-	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditAnywhere, Category="FPS|WeaponType")
 	FGameplayTag WeaponType;
+
+protected:
+	virtual void BeginPlay() override;
 
 private:
 	// Weapon Mesh: 1st person view
