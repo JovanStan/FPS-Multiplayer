@@ -6,6 +6,7 @@
 #include "PlayerInterface.generated.h"
 
 
+class AWeapon;
 struct FGameplayTag;
 
 UINTERFACE()
@@ -21,4 +22,11 @@ class FPS_API IPlayerInterface
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FName GetWeaponAttachPoint(const FGameplayTag& WeaponType) const;
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	USkeletalMeshComponent* GetFirstPersonMesh() const;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	USkeletalMeshComponent* GetThirdPersonMesh() const;
+	UFUNCTION(BlueprintNativeEvent)
+	bool IsWeaponEquipped(const AWeapon* Weapon) const;
 };

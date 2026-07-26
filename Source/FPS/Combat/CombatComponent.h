@@ -16,8 +16,8 @@ class FPS_API UCombatComponent : public UActorComponent
 
 public:
 	UCombatComponent();
-
-	// Cycle to the next weapon in inventory
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	void Initiate_CycleWeapon();
 	void Initiate_FireWeapon_Pressed();
 	void Initiate_FireWeapon_Released();
@@ -28,12 +28,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="FPS|Weapon")
 	TObjectPtr<UWeaponData> WeaponData;
 	
+	void Equip(AWeapon* Weapon);
 	void SpawnInventory();
 	void DestroyInventory();
 	
 private:
+	UPROPERTY(Transient, ReplicatedUsing=OnRep_CurrentWeapon)
+	TObjectPtr<AWeapon> CurrentWeapon;
+	UFUNCTION()
+	void OnRep_CurrentWeapon(AWeapon* LastWeapon);
+	
+	UPROPERTY(Transient,  Replicated)
+	TArray<AWeapon*> Inventory;
+	
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AWeapon> DefaultWeaponClass;
+	TArray<TSubclassOf<AWeapon>> DefaultWeaponClasses;
 	
 	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass);
+	
+public:
+	FORCEINLINE AWeapon* GetCurrentWeapon() { return CurrentWeapon;}
 };

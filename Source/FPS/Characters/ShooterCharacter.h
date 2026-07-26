@@ -18,14 +18,17 @@ class FPS_API AShooterCharacter : public ACharacter, public IPlayerInterface
 
 public:
 	AShooterCharacter();
+	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
 	virtual void PossessedBy(AController* NewController) override;
 	
 	/** Player Interface */
 	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const override;
+	virtual USkeletalMeshComponent* GetFirstPersonMesh_Implementation() const override;
+	virtual USkeletalMeshComponent* GetThirdPersonMesh_Implementation() const override;
+	virtual bool IsWeaponEquipped_Implementation(const AWeapon* Weapon) const override;
 	/** ~Player Interface */
 
-protected:
-	virtual void BeginPlay() override;
 
 private:
 	// 1st person view (arms)

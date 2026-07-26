@@ -13,6 +13,9 @@ class FPS_API AWeapon : public AActor
 
 public:
 	AWeapon();
+	virtual void OnRep_Instigator() override;
+	
+	void AttachToOwningPawn() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -28,6 +31,8 @@ private:
 	// Weapon Mesh: 3rd person view
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USkeletalMeshComponent> ThirdPersonMesh;
+	
+	void SetMeshVisibilities(const APawn* OwningPawn) const;
 	
 public:
 	FORCEINLINE USkeletalMeshComponent* GetFirstPersonMesh() const { return FirstPersonMesh; }

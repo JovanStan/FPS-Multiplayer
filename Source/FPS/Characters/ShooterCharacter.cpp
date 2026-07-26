@@ -60,10 +60,35 @@ FName AShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayTag&
 	return NAME_None;
 }
 
+USkeletalMeshComponent* AShooterCharacter::GetFirstPersonMesh_Implementation() const
+{
+	return FirstPersonMesh;
+}
+
+USkeletalMeshComponent* AShooterCharacter::GetThirdPersonMesh_Implementation() const
+{
+	return GetMesh();
+}
+
+bool AShooterCharacter::IsWeaponEquipped_Implementation(const AWeapon* Weapon) const
+{
+	return IsValid(CombatComponent) && CombatComponent->GetCurrentWeapon() == Weapon;
+}
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void AShooterCharacter::BeginDestroy()
+{
+	Super::BeginDestroy();
+	
+	if (IsValid(CombatComponent))
+	{
+		CombatComponent->DestroyInventory();
+	}
 }
 
 
