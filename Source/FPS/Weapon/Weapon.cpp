@@ -24,6 +24,8 @@ AWeapon::AWeapon()
 	ThirdPersonMesh->CastShadow = true;
 	ThirdPersonMesh->SetHiddenInGame(true);
 	ThirdPersonMesh->SetupAttachment(FirstPersonMesh);
+	
+	AimFieldOfView = 65.f;
 }
 
 void AWeapon::OnRep_Instigator()

@@ -133,6 +133,7 @@ void AShooterPlayerController::Input_Aim_Pressed()
 	if (CachedShooterCharacter->GetCombatComponent())
 	{
 		CachedShooterCharacter->GetCombatComponent()->Initiate_Aim_Pressed();
+		CachedShooterCharacter->OnAim(true);
 	}
 }
 
@@ -141,5 +142,6 @@ void AShooterPlayerController::Input_Aim_Released()
 	if (CachedShooterCharacter->GetCombatComponent())
 	{
 		CachedShooterCharacter->GetCombatComponent()->Initiate_Aim_Released();
+		CachedShooterCharacter->OnAim(false);
 	}
 }

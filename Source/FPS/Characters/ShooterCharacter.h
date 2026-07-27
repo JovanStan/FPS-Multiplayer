@@ -28,7 +28,9 @@ public:
 	virtual USkeletalMeshComponent* GetThirdPersonMesh_Implementation() const override;
 	virtual bool IsWeaponEquipped_Implementation(const AWeapon* Weapon) const override;
 	/** ~Player Interface */
-
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAim(bool bIsAiming);
 
 private:
 	// 1st person view (arms)
@@ -37,12 +39,14 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArm;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<UCameraComponent> FirstPersonCamera;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<UCombatComponent> CombatComponent;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	float DefaultFieldOfView;
 public:
 	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComponent; }
 };

@@ -39,6 +39,8 @@ AShooterCharacter::AShooterCharacter()
 	
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("Combat Component");
 	CombatComponent->SetIsReplicated(true);
+	
+	DefaultFieldOfView = 90.f;
 }
 
 void AShooterCharacter::PossessedBy(AController* NewController)
@@ -79,6 +81,7 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	FirstPersonCamera->SetFieldOfView(DefaultFieldOfView);
 }
 
 void AShooterCharacter::BeginDestroy()
