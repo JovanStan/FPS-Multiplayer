@@ -21,6 +21,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
 	virtual void PossessedBy(AController* NewController) override;
+	virtual void Tick(float DeltaSeconds) override;
 	
 	/** Player Interface */
 	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const override;
@@ -31,6 +32,14 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnAim(bool bIsAiming);
+	
+	UFUNCTION(BlueprintCallable)
+	FRotator GetFixedAimRotation() const;
+	
+	void CalculateFabrikSocketTransform();
+	
+	UPROPERTY(BlueprintReadOnly)
+	FTransform FABRIK_SocketTransform;
 
 private:
 	// 1st person view (arms)
