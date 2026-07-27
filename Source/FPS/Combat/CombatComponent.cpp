@@ -15,6 +15,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	
 	DOREPLIFETIME(ThisClass, Inventory);
 	DOREPLIFETIME(ThisClass, CurrentWeapon);
+	DOREPLIFETIME_CONDITION(ThisClass, bAiming, COND_SkipOwner);
 }
 
 void UCombatComponent::Initiate_CycleWeapon()
@@ -39,12 +40,26 @@ void UCombatComponent::Initiate_ReloadWeapon()
 
 void UCombatComponent::Initiate_Aim_Pressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Silver, "Aim Pressed");
+	Local_Aim(true);
+	Server_Aim(true);
 }
 
 void UCombatComponent::Initiate_Aim_Released()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Silver, "Aim Released");
+	Local_Aim(false);
+	Server_Aim(false);
+}
+
+// This is for local player
+void UCombatComponent::Local_Aim(bool bPressed)
+{
+	bAiming = bPressed;
+}
+
+// This is for server to tell the rest of the clients that we are aiming
+void UCombatComponent::Server_Aim_Implementation(bool bPressed)
+{
+	Local_Aim(bPressed);
 }
 
 void UCombatComponent::Equip(AWeapon* Weapon)
@@ -99,3 +114,5 @@ AWeapon* UCombatComponent::SpawnWeapon(TSubclassOf<AWeapon> WeaponClass)
 	
 	return GetWorld()->SpawnActor<AWeapon>(WeaponClass, SpawnParams);
 }
+
+
