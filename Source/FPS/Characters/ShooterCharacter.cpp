@@ -4,9 +4,11 @@
 #include "Camera/CameraComponent.h"
 #include "FPS/Combat/CombatComponent.h"
 #include "FPS/Data/WeaponData.h"
+#include "FPS/ShooterTypes/ShooterTypes.h"
 #include "FPS/Weapon/Weapon.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -42,6 +44,7 @@ AShooterCharacter::AShooterCharacter()
 	CombatComponent->SetIsReplicated(true);
 	
 	DefaultFieldOfView = 90.f;
+	TurningStatus = ETurningInPlace::NotTurning;
 }
 
 void AShooterCharacter::PossessedBy(AController* NewController)
@@ -58,6 +61,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
+	CalculateTurnInPlaceParameters(DeltaSeconds);
 	CalculateFabrikSocketTransform();
 }
 
@@ -98,6 +102,11 @@ FRotator AShooterCharacter::GetFixedAimRotation() const
 	return AimRotation;
 }
 
+bool AShooterCharacter::HasCurrentWeapon() const
+{
+	return IsValid(CombatComponent) && CombatComponent->GetCurrentWeapon() != nullptr;
+}
+
 void AShooterCharacter::CalculateFabrikSocketTransform()
 {
 	if (IsValid(CombatComponent) && IsValid(CombatComponent->GetCurrentWeapon()) && IsValid(CombatComponent->GetCurrentWeapon()->GetThirdPersonMesh()))
@@ -114,11 +123,68 @@ void AShooterCharacter::CalculateFabrikSocketTransform()
 	}
 }
 
+void AShooterCharacter::CalculateTurnInPlaceParameters(float DeltaTime)
+{
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	float Speed = Velocity.Size();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+	
+	if (Speed == 0.f && !bIsInAir)
+	{
+		FRotator CurrentAimRotation(0.f, GetBaseAimRotation().Yaw, 0.f);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+		
+		if (TurningStatus == ETurningInPlace::NotTurning)
+		{
+			InterpAO_Yaw = AO_Yaw;
+			TurnInPlace(DeltaTime);
+		}
+	}
+	
+	if (Speed > 0.f || bIsInAir)
+	{
+		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AO_Yaw = 0.f;
+		
+		FRotator AimRotation = GetBaseAimRotation();
+		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(GetVelocity());
+		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
+		TurningStatus = ETurningInPlace::NotTurning;
+	}
+	
+	AO_Yaw *= -1.f;
+}
+
+void AShooterCharacter::TurnInPlace(float DeltaTime)
+{
+	if (AO_Yaw > 90.f)
+	{
+		TurningStatus = ETurningInPlace::Right;
+	}
+	else if (AO_Yaw < -90.f)
+	{
+		TurningStatus = ETurningInPlace::Left;
+	}
+	if (TurningStatus != ETurningInPlace::NotTurning)
+	{
+		InterpAO_Yaw = FMath::FInterpTo(InterpAO_Yaw, 0.f, DeltaTime, 4.f);
+		AO_Yaw = InterpAO_Yaw;
+		if (FMath::Abs(AO_Yaw) < 5.f)
+		{
+			TurningStatus = ETurningInPlace::NotTurning;
+			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		}
+	}
+}
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	FirstPersonCamera->SetFieldOfView(DefaultFieldOfView);
+	StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 }
 
 void AShooterCharacter::BeginDestroy()

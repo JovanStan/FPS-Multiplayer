@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
+enum class ETurningInPlace : uint8;
 class UInputAction;
 class UCombatComponent;
 class UCameraComponent;
@@ -35,8 +36,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	FRotator GetFixedAimRotation() const;
-	
-	void CalculateFabrikSocketTransform();
+	UFUNCTION(BlueprintCallable)
+	bool HasCurrentWeapon() const;
 	
 	UPROPERTY(BlueprintReadOnly)
 	FTransform FABRIK_SocketTransform;
@@ -56,6 +57,21 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	float DefaultFieldOfView;
+	
+	void CalculateFabrikSocketTransform();
+	void CalculateTurnInPlaceParameters(float DeltaTime);
+	void TurnInPlace(float DeltaTime);
+	
+	FRotator StartingAimRotation;
+	float InterpAO_Yaw;
+	
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	float AO_Yaw;
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	float MovementOffsetYaw;
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	ETurningInPlace TurningStatus;
+	
 public:
 	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComponent; }
 };
