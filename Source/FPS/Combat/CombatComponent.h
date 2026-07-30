@@ -38,6 +38,8 @@ public:
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentWeapon)
 	TObjectPtr<AWeapon> CurrentWeapon;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TraceDistance = 20000.f;
 	
 private:
 	UFUNCTION()

@@ -32,6 +32,8 @@ void UCombatComponent::Initiate_FireWeapon_Pressed()
 
 void UCombatComponent::Local_FireWeapon()
 {
+	// All this is done Locally
+	if (!IsValid(CurrentWeapon)) return;
 	if (!IsValid(WeaponData)) return;
 	
 	UAnimMontage* MontageFirstPerson = WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->WeaponType).FireMontage;
@@ -41,12 +43,16 @@ void UCombatComponent::Local_FireWeapon()
 	{
 		MeshFirstPerson->GetAnimInstance()->Montage_Play(MontageFirstPerson);
 	}
+	FHitResult HitResult;
+	CurrentWeapon->WeaponTrace(HitResult, TraceDistance);
 	
+	// Tell Server that we are firing
 	Server_FireWeapon();
 }
 
 void UCombatComponent::Server_FireWeapon_Implementation()
 {
+	// Server then MultiCast to all other clients that we are firing
 	Multicast_FireWeapon();
 }
 

@@ -16,6 +16,7 @@ public:
 	virtual void OnRep_Instigator() override;
 	
 	void AttachToOwningPawn() const;
+	void WeaponTrace(FHitResult& HitResult, float TraceDistance);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
 	FGameplayTag WeaponType;

@@ -1,7 +1,11 @@
 ﻿
 #include "Weapon.h"
 
+#include "CollisionShape.h"
+#include "KismetTraceUtils.h"
+#include "FPS/FPS.h"
 #include "FPS/Interfaces/PlayerInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AWeapon::AWeapon()
 {
@@ -48,6 +52,38 @@ void AWeapon::AttachToOwningPawn() const
 	
 	FirstPersonMesh->AttachToComponent(FirstPersonMeshPawn, FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
 	ThirdPersonMesh->AttachToComponent(ThirdPersonMeshPawn, FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
+}
+
+void AWeapon::WeaponTrace(FHitResult& HitResult, float TraceDistance)
+{
+	FCollisionQueryParams QueryParams;
+	QueryParams.bReturnPhysicalMaterial = true;
+	QueryParams.AddIgnoredActor(GetOwner());
+	
+	FCollisionResponseParams ResponseParams;
+	ResponseParams.CollisionResponse.SetAllChannels(ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECC_Pawn, ECR_Block);
+	ResponseParams.CollisionResponse.SetResponse(ECC_WorldStatic, ECR_Block);
+	ResponseParams.CollisionResponse.SetResponse(ECC_WorldDynamic, ECR_Block);
+	ResponseParams.CollisionResponse.SetResponse(ECC_PhysicsBody, ECR_Block);
+	
+	if (!GetInstigator()) return;
+	if (APlayerController* PC = Cast<APlayerController>(GetInstigator()->GetController()))
+	{
+		FVector EyesWorldLocation;
+		FRotator EyesWorldRotation;
+		PC->GetActorEyesViewPoint(EyesWorldLocation, EyesWorldRotation);
+		
+		const FVector EyesWorldDirection = UKismetMathLibrary::GetForwardVector(EyesWorldRotation);
+		const FVector StartLocation = EyesWorldLocation;
+		const FVector EndLocation = StartLocation + EyesWorldDirection * TraceDistance;
+		
+		const bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartLocation, EndLocation, FQuat::Identity, FPSTraceChannels::ECC_Weapon, 
+			FCollisionShape::MakeSphere(5.f), QueryParams, ResponseParams);
+		
+		DrawDebugSphereTraceSingle(GetWorld(), StartLocation, EndLocation, 5.f, EDrawDebugTrace::ForDuration,
+			bHit, HitResult, FColor::Green, FColor::Red, 5.f);
+	}
 }
 
 void AWeapon::BeginPlay()
