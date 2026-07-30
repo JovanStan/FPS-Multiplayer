@@ -60,7 +60,7 @@ public:
 	TMap<FGameplayTag, FName> GripPoints;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="FPS|WeaponData|Weapons")
 	TMap<FGameplayTag, FMontageData> WeaponMontages;
-	
+	 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="FPS|WeaponData|FirstPerson")
 	TMap<FGameplayTag, FPlayerAnims> FirstPersonAnims;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="FPS|WeaponData|ThirdPerson")

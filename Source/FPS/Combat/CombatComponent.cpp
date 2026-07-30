@@ -1,6 +1,8 @@
 ﻿
 #include "CombatComponent.h"
 
+#include "FPS/Data/WeaponData.h"
+#include "FPS/Interfaces/PlayerInterface.h"
 #include "FPS/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
 
@@ -25,12 +27,53 @@ void UCombatComponent::Initiate_CycleWeapon()
 
 void UCombatComponent::Initiate_FireWeapon_Pressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "Weapon Pressed");
+	Local_FireWeapon();
+}
+
+void UCombatComponent::Local_FireWeapon()
+{
+	if (!IsValid(WeaponData)) return;
+	
+	UAnimMontage* MontageFirstPerson = WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->WeaponType).FireMontage;
+	USkeletalMeshComponent* MeshFirstPerson = IPlayerInterface::Execute_GetFirstPersonMesh(GetOwner());
+	
+	if (IsValid(MontageFirstPerson) && IsValid(MeshFirstPerson))
+	{
+		MeshFirstPerson->GetAnimInstance()->Montage_Play(MontageFirstPerson);
+	}
+	
+	Server_FireWeapon();
+}
+
+void UCombatComponent::Server_FireWeapon_Implementation()
+{
+	Multicast_FireWeapon();
+}
+
+void UCombatComponent::Multicast_FireWeapon_Implementation()
+{
+	APawn* ControlledPawn = Cast<APawn>(GetOwner());
+	if (ControlledPawn->IsLocallyControlled())
+	{
+		
+	}
+	else
+	{
+		if (!IsValid(WeaponData)) return;
+	
+		UAnimMontage* MontageThirdPerson = WeaponData->ThirdPersonMontages.FindChecked(CurrentWeapon->WeaponType).FireMontage;
+		USkeletalMeshComponent* MeshThirdPerson = IPlayerInterface::Execute_GetThirdPersonMesh(GetOwner());
+	
+		if (IsValid(MontageThirdPerson) && IsValid(MeshThirdPerson))
+		{
+			MeshThirdPerson->GetAnimInstance()->Montage_Play(MontageThirdPerson);
+		}
+	}
 }
 
 void UCombatComponent::Initiate_FireWeapon_Released()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, "Weapon Released");
+	
 }
 
 void UCombatComponent::Initiate_ReloadWeapon()

@@ -53,8 +53,13 @@ private:
 	
 	UFUNCTION(Server, Reliable)
 	void Server_Aim(bool bPressed);
-	
 	void Local_Aim(bool bPressed);
+	
+	void Local_FireWeapon();
+	UFUNCTION(Server, Reliable)
+	void Server_FireWeapon();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_FireWeapon();
 	
 public:
 	FORCEINLINE AWeapon* GetCurrentWeapon() { return CurrentWeapon;}
