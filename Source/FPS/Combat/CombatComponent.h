@@ -33,7 +33,7 @@ public:
 	void DestroyInventory();
 	
 	UPROPERTY(BlueprintReadOnly, Replicated)
-	bool bAiming;
+	bool bAiming = false;
 	
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentWeapon)
@@ -62,6 +62,10 @@ private:
 	void Server_FireWeapon(const FHitResult& HitResult);
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_FireWeapon(const FHitResult& HitResult);
+	
+	bool bTriggerPressed = false;
+	FTimerHandle FireTimer;
+	void FireTimerFinished();
 	
 public:
 	FORCEINLINE AWeapon* GetCurrentWeapon() { return CurrentWeapon;}

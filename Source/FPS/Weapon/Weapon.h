@@ -6,6 +6,13 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+UENUM(BlueprintType)
+enum EFireType : uint8
+{
+	Automatic,
+	SemiAutomatic
+};
+
 UCLASS()
 class FPS_API AWeapon : public AActor
 {
@@ -21,6 +28,11 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
 	FGameplayTag WeaponType;
+	UPROPERTY(EditAnywhere, Category="FPS|FireType")
+	TEnumAsByte<EFireType> FireType;
+	
+	UPROPERTY(EditAnywhere)
+	float FireTime = .1f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
 	float AimFieldOfView;

@@ -27,6 +27,7 @@ void UCombatComponent::Initiate_CycleWeapon()
 
 void UCombatComponent::Initiate_FireWeapon_Pressed()
 {
+	bTriggerPressed = true;
 	Local_FireWeapon();
 }
 
@@ -48,6 +49,8 @@ void UCombatComponent::Local_FireWeapon()
 	
 	CurrentWeapon->WeaponTrace(HitResult, TraceDistance);
 	CurrentWeapon->FireEffects(HitResult.ImpactPoint, HitResult.ImpactNormal, ImpactSurfaceType, true);
+	
+	GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, CurrentWeapon->FireTime);
 	
 	// Tell Server that we are firing
 	Server_FireWeapon(HitResult);
@@ -83,9 +86,19 @@ void UCombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& Hit
 	}
 }
 
+void UCombatComponent::FireTimerFinished()
+{
+	if (!IsValid(CurrentWeapon)) return;
+	
+	if (bTriggerPressed && CurrentWeapon->FireType == Automatic)
+	{
+		Local_FireWeapon();
+	}
+}
+
 void UCombatComponent::Initiate_FireWeapon_Released()
 {
-	
+	bTriggerPressed = false;
 }
 
 void UCombatComponent::Initiate_ReloadWeapon()
