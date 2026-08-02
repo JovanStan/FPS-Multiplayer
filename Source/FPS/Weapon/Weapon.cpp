@@ -78,12 +78,20 @@ void AWeapon::WeaponTrace(FHitResult& HitResult, float TraceDistance)
 		const FVector StartLocation = EyesWorldLocation;
 		const FVector EndLocation = StartLocation + EyesWorldDirection * TraceDistance;
 		
-		const bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartLocation, EndLocation, FQuat::Identity, FPSTraceChannels::ECC_Weapon, 
-			FCollisionShape::MakeSphere(5.f), QueryParams, ResponseParams);
+		const bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartLocation, EndLocation, FQuat::Identity, 
+			FPSTraceChannels::ECC_Weapon, FCollisionShape::MakeSphere(5.f), QueryParams, ResponseParams);
 		
-		DrawDebugSphereTraceSingle(GetWorld(), StartLocation, EndLocation, 5.f, EDrawDebugTrace::ForDuration,
-			bHit, HitResult, FColor::Green, FColor::Red, 5.f);
+		if (!bHit)
+		{
+			HitResult.ImpactPoint = EndLocation;
+		}
 	}
+}
+
+void AWeapon::FireEffects(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, bool bIsFirstPerson)
+{
+	// Local Fire stuff
+	FireEffectsEvent(ImpactPoint, ImpactNormal, ImpactSurfaceType, bIsFirstPerson);
 }
 
 void AWeapon::BeginPlay()

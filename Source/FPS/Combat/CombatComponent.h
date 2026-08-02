@@ -59,9 +59,9 @@ private:
 	
 	void Local_FireWeapon();
 	UFUNCTION(Server, Reliable)
-	void Server_FireWeapon();
+	void Server_FireWeapon(const FHitResult& HitResult);
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_FireWeapon();
+	void Multicast_FireWeapon(const FHitResult& HitResult);
 	
 public:
 	FORCEINLINE AWeapon* GetCurrentWeapon() { return CurrentWeapon;}

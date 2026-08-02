@@ -44,19 +44,22 @@ void UCombatComponent::Local_FireWeapon()
 		MeshFirstPerson->GetAnimInstance()->Montage_Play(MontageFirstPerson);
 	}
 	FHitResult HitResult;
+	EPhysicalSurface ImpactSurfaceType = HitResult.PhysMaterial.IsValid(false) ? HitResult.PhysMaterial->SurfaceType.GetValue() : SurfaceType1;
+	
 	CurrentWeapon->WeaponTrace(HitResult, TraceDistance);
+	CurrentWeapon->FireEffects(HitResult.ImpactPoint, HitResult.ImpactNormal, ImpactSurfaceType, true);
 	
 	// Tell Server that we are firing
-	Server_FireWeapon();
+	Server_FireWeapon(HitResult);
 }
 
-void UCombatComponent::Server_FireWeapon_Implementation()
+void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& HitResult)
 {
 	// Server then MultiCast to all other clients that we are firing
-	Multicast_FireWeapon();
+	Multicast_FireWeapon(HitResult);
 }
 
-void UCombatComponent::Multicast_FireWeapon_Implementation()
+void UCombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& HitResult)
 {
 	APawn* ControlledPawn = Cast<APawn>(GetOwner());
 	if (ControlledPawn->IsLocallyControlled())
@@ -66,6 +69,9 @@ void UCombatComponent::Multicast_FireWeapon_Implementation()
 	else
 	{
 		if (!IsValid(WeaponData)) return;
+		
+		EPhysicalSurface ImpactSurfaceType = HitResult.PhysMaterial.IsValid(false) ? HitResult.PhysMaterial->SurfaceType.GetValue() : SurfaceType1;
+		CurrentWeapon->FireEffects(HitResult.ImpactPoint, HitResult.ImpactNormal, ImpactSurfaceType, false);
 	
 		UAnimMontage* MontageThirdPerson = WeaponData->ThirdPersonMontages.FindChecked(CurrentWeapon->WeaponType).FireMontage;
 		USkeletalMeshComponent* MeshThirdPerson = IPlayerInterface::Execute_GetThirdPersonMesh(GetOwner());

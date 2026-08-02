@@ -17,6 +17,7 @@ public:
 	
 	void AttachToOwningPawn() const;
 	void WeaponTrace(FHitResult& HitResult, float TraceDistance);
+	void FireEffects(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> SurfaceType, bool bIsFirstPerson);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
 	FGameplayTag WeaponType;
@@ -26,14 +27,17 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void FireEffectsEvent(const FVector& ImpactPoint, const FVector& ImpactNormal, EPhysicalSurface ImpactSurfaceType, bool bIsFirstPerson);
 
 private:
 	// Weapon Mesh: 1st person view
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
 	
 	// Weapon Mesh: 3rd person view
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USkeletalMeshComponent> ThirdPersonMesh;
 	
 	void SetMeshVisibilities(const APawn* OwningPawn) const;
