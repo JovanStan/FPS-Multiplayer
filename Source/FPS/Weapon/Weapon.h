@@ -24,7 +24,10 @@ public:
 	
 	void AttachToOwningPawn() const;
 	void WeaponTrace(FHitResult& HitResult, float TraceDistance);
-	void FireEffects(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> SurfaceType, bool bIsFirstPerson);
+	void DryFire();
+	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> SurfaceType, bool bIsFirstPerson);
+	void Auth_Fire();
+	void Rep_Fire(int32 AuthAmmo);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
 	FGameplayTag WeaponType;
@@ -32,27 +35,35 @@ public:
 	TEnumAsByte<EFireType> FireType;
 	
 	UPROPERTY(EditAnywhere)
-	float FireTime = .1f;
-	
+	float FireTime;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
 	float AimFieldOfView;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 Ammo;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 MagCapacity;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 StartingCarriedAmmo;
 
 protected:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void FireEffectsEvent(const FVector& ImpactPoint, const FVector& ImpactNormal, EPhysicalSurface ImpactSurfaceType, bool bIsFirstPerson);
-
+	UFUNCTION(BlueprintImplementableEvent)
+	void DryFireEvent();
 private:
 	// Weapon Mesh: 1st person view
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
-	
 	// Weapon Mesh: 3rd person view
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USkeletalMeshComponent> ThirdPersonMesh;
 	
 	void SetMeshVisibilities(const APawn* OwningPawn) const;
+	
+	int32 Sequence;
 	
 public:
 	FORCEINLINE USkeletalMeshComponent* GetFirstPersonMesh() const { return FirstPersonMesh; }

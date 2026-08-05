@@ -61,7 +61,7 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_FireWeapon(const FHitResult& HitResult);
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_FireWeapon(const FHitResult& HitResult);
+	void Multicast_FireWeapon(const FHitResult& HitResult, int32 AuthAmmo);
 	
 	bool bTriggerPressed = false;
 	FTimerHandle FireTimer;

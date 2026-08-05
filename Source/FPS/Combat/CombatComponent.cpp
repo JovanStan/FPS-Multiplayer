@@ -27,8 +27,18 @@ void UCombatComponent::Initiate_CycleWeapon()
 
 void UCombatComponent::Initiate_FireWeapon_Pressed()
 {
+	if (!IsValid(CurrentWeapon)) return;
+	
 	bTriggerPressed = true;
-	Local_FireWeapon();
+	
+	if (CurrentWeapon->Ammo > 0)
+	{
+		Local_FireWeapon();
+	}
+	else
+	{
+		CurrentWeapon->DryFire();
+	}
 }
 
 void UCombatComponent::Local_FireWeapon()
@@ -48,7 +58,7 @@ void UCombatComponent::Local_FireWeapon()
 	EPhysicalSurface ImpactSurfaceType = HitResult.PhysMaterial.IsValid(false) ? HitResult.PhysMaterial->SurfaceType.GetValue() : SurfaceType1;
 	
 	CurrentWeapon->WeaponTrace(HitResult, TraceDistance);
-	CurrentWeapon->FireEffects(HitResult.ImpactPoint, HitResult.ImpactNormal, ImpactSurfaceType, true);
+	CurrentWeapon->Local_Fire(HitResult.ImpactPoint, HitResult.ImpactNormal, ImpactSurfaceType, true);
 	
 	GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, CurrentWeapon->FireTime);
 	
@@ -59,22 +69,28 @@ void UCombatComponent::Local_FireWeapon()
 void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& HitResult)
 {
 	// Server then MultiCast to all other clients that we are firing
-	Multicast_FireWeapon(HitResult);
+	if (!IsValid(CurrentWeapon)) return;
+	
+	if (GetNetMode() != NM_ListenServer || !Cast<APawn>(GetOwner())->IsLocallyControlled())
+	{
+		CurrentWeapon->Auth_Fire();
+	}
+	Multicast_FireWeapon(HitResult, CurrentWeapon->Ammo);
 }
 
-void UCombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& HitResult)
+void UCombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& HitResult, int32 AuthAmmo)
 {
 	APawn* ControlledPawn = Cast<APawn>(GetOwner());
 	if (ControlledPawn->IsLocallyControlled())
 	{
-		
+		CurrentWeapon->Rep_Fire(AuthAmmo);
 	}
 	else
 	{
 		if (!IsValid(WeaponData)) return;
 		
 		EPhysicalSurface ImpactSurfaceType = HitResult.PhysMaterial.IsValid(false) ? HitResult.PhysMaterial->SurfaceType.GetValue() : SurfaceType1;
-		CurrentWeapon->FireEffects(HitResult.ImpactPoint, HitResult.ImpactNormal, ImpactSurfaceType, false);
+		CurrentWeapon->Local_Fire(HitResult.ImpactPoint, HitResult.ImpactNormal, ImpactSurfaceType, false);
 	
 		UAnimMontage* MontageThirdPerson = WeaponData->ThirdPersonMontages.FindChecked(CurrentWeapon->WeaponType).FireMontage;
 		USkeletalMeshComponent* MeshThirdPerson = IPlayerInterface::Execute_GetThirdPersonMesh(GetOwner());
@@ -90,7 +106,7 @@ void UCombatComponent::FireTimerFinished()
 {
 	if (!IsValid(CurrentWeapon)) return;
 	
-	if (bTriggerPressed && CurrentWeapon->FireType == Automatic)
+	if (bTriggerPressed && CurrentWeapon->FireType == Automatic && CurrentWeapon->Ammo > 0)
 	{
 		Local_FireWeapon();
 	}
