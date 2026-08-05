@@ -12,6 +12,8 @@ class UCombatComponent;
 class UCameraComponent;
 class USpringArmComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponFirstReplicated, AWeapon*, Weapon);
+
 UCLASS()
 class FPS_API AShooterCharacter : public ACharacter, public IPlayerInterface
 {
@@ -29,6 +31,7 @@ public:
 	virtual USkeletalMeshComponent* GetFirstPersonMesh_Implementation() const override;
 	virtual USkeletalMeshComponent* GetThirdPersonMesh_Implementation() const override;
 	virtual bool IsWeaponEquipped_Implementation(const AWeapon* Weapon) const override;
+	virtual void WeaponReplicated_Implementation() override;
 	/** ~Player Interface */
 	
 	UFUNCTION(BlueprintImplementableEvent)
@@ -41,6 +44,10 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly)
 	FTransform FABRIK_SocketTransform;
+	
+	UPROPERTY(BlueprintAssignable)
+	FWeaponFirstReplicated OnWeaponFirstReplicated;
+
 
 private:
 	// 1st person view (arms)
@@ -65,6 +72,8 @@ private:
 	FRotator StartingAimRotation;
 	float InterpAO_Yaw;
 	
+	bool bWeaponFirstReplicated;
+	
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	float AO_Yaw;
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
@@ -74,4 +83,5 @@ private:
 	
 public:
 	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComponent; }
+	FORCEINLINE bool HasWeaponFirstReplicated() const { return  bWeaponFirstReplicated; }
 };

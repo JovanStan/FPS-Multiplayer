@@ -45,6 +45,7 @@ AShooterCharacter::AShooterCharacter()
 	
 	DefaultFieldOfView = 90.f;
 	TurningStatus = ETurningInPlace::NotTurning;
+	bWeaponFirstReplicated = false;
 }
 
 void AShooterCharacter::PossessedBy(AController* NewController)
@@ -87,6 +88,15 @@ USkeletalMeshComponent* AShooterCharacter::GetThirdPersonMesh_Implementation() c
 bool AShooterCharacter::IsWeaponEquipped_Implementation(const AWeapon* Weapon) const
 {
 	return IsValid(CombatComponent) && CombatComponent->GetCurrentWeapon() == Weapon;
+}
+
+void AShooterCharacter::WeaponReplicated_Implementation()
+{
+	if (!bWeaponFirstReplicated)
+	{
+		bWeaponFirstReplicated = true;
+		OnWeaponFirstReplicated.Broadcast(CombatComponent->GetCurrentWeapon());
+	}
 }
 
 FRotator AShooterCharacter::GetFixedAimRotation() const

@@ -29,4 +29,7 @@ public:
 	USkeletalMeshComponent* GetThirdPersonMesh() const;
 	UFUNCTION(BlueprintNativeEvent)
 	bool IsWeaponEquipped(const AWeapon* Weapon) const;
+	
+	UFUNCTION(BlueprintNativeEvent)
+	void WeaponReplicated();
 };
