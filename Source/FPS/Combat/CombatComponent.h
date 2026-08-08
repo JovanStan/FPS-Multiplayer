@@ -8,6 +8,10 @@
 
 class AWeapon;
 class UWeaponData;
+class UMaterialInstanceDynamic;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReticleChanged, UMaterialInstanceDynamic*, ReticleDynamic);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAmmoCounterChanged, UMaterialInstanceDynamic*, AmmoDynamic, int32, RoundsCurrent, int32, RoundMax);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPS_API UCombatComponent : public UActorComponent
@@ -15,6 +19,10 @@ class FPS_API UCombatComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static UCombatComponent* FindCombatComponent(const AActor* Actor) { return IsValid(Actor) ? Actor->FindComponentByClass<UCombatComponent>() : nullptr;}
+	
 	UCombatComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	
@@ -31,6 +39,13 @@ public:
 	void Equip(AWeapon* Weapon);
 	void SpawnInventory();
 	void DestroyInventory();
+	
+	void InitializeWeaponWidgets();
+	
+	UPROPERTY(BlueprintAssignable)
+	FReticleChanged OnReticleChanged;
+	UPROPERTY(BlueprintAssignable)
+	FAmmoCounterChanged OnAmmoCounterChanged;
 	
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool bAiming = false;

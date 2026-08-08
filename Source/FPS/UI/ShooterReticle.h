@@ -32,5 +32,10 @@ private:
 	
 	UFUNCTION()
 	void OnWeaponFirstReplicated(AWeapon* Weapon);
+	
+	UFUNCTION()
+	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynamic);
+	UFUNCTION()
+	void OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynamic, int32 RoundsCurrent, int32 RoundsMax);
 };
 

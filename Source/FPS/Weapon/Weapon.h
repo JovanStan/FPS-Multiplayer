@@ -65,7 +65,19 @@ private:
 	
 	int32 Sequence;
 	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterialInterface> ReticleMaterial;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterialInterface> AmmoCounterMaterial;
+	
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> ReticleDynamic;
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> AmmoCounterDynamic;
+	
 public:
 	FORCEINLINE USkeletalMeshComponent* GetFirstPersonMesh() const { return FirstPersonMesh; }
 	FORCEINLINE USkeletalMeshComponent* GetThirdPersonMesh() const { return ThirdPersonMesh; }
+	UMaterialInstanceDynamic* GetReticleDynamic(); 
+	UMaterialInstanceDynamic* GetAmmoCounterDynamic();
 };

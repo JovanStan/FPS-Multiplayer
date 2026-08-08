@@ -11,6 +11,7 @@ class UInputAction;
 class UCombatComponent;
 class UCameraComponent;
 class USpringArmComponent;
+class AWeapon;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponFirstReplicated, AWeapon*, Weapon);
 
@@ -32,6 +33,7 @@ public:
 	virtual USkeletalMeshComponent* GetThirdPersonMesh_Implementation() const override;
 	virtual bool IsWeaponEquipped_Implementation(const AWeapon* Weapon) const override;
 	virtual void WeaponReplicated_Implementation() override;
+	virtual AWeapon* GetCurrentWeapon_Implementation() override;
 	/** ~Player Interface */
 	
 	UFUNCTION(BlueprintImplementableEvent)

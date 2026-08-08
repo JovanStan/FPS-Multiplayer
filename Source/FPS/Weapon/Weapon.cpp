@@ -154,3 +154,22 @@ void AWeapon::SetMeshVisibilities(const APawn* OwningPawn) const
 	}
 }
 
+UMaterialInstanceDynamic* AWeapon::GetReticleDynamic()
+{
+	if (!IsValid(ReticleDynamic))
+	{
+		ReticleDynamic = UMaterialInstanceDynamic::Create(ReticleMaterial, this);
+	}
+	return ReticleDynamic;
+}
+
+UMaterialInstanceDynamic* AWeapon::GetAmmoCounterDynamic()
+{
+	if (!IsValid(AmmoCounterDynamic))
+	{
+		AmmoCounterDynamic = UMaterialInstanceDynamic::Create(AmmoCounterMaterial, this);
+	}
+	return ReticleDynamic;
+}
+
+
