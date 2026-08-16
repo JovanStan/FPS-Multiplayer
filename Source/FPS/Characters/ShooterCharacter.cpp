@@ -66,6 +66,16 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	CalculateFabrikSocketTransform();
 }
 
+void AShooterCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	
+	if (IsValid(CombatComponent))
+	{
+		CombatComponent->InitializeWeaponWidgets();
+	}
+}
+
 FName AShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const
 {
 	if (CombatComponent->WeaponData)

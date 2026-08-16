@@ -21,7 +21,7 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> ReticleImage;
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UImage> AmmoCounter;
+	TObjectPtr<UImage> AmmoCounterImage;
 	
 private:
 	TWeakObjectPtr<UMaterialInstanceDynamic> CurrentReticle;
@@ -36,6 +36,8 @@ private:
 	UFUNCTION()
 	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynamic);
 	UFUNCTION()
-	void OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynamic, int32 RoundsCurrent, int32 RoundsMax);
+	void OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynamic, int RoundsCurrent, int RoundsMax);
+	UFUNCTION()
+	void OnRoundFired(int RoundsCurrent, int RoundsMax);
 };
 

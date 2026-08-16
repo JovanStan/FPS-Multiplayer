@@ -1,10 +1,12 @@
 ﻿
 #include "CombatComponent.h"
 
+#include "Chaos/ChaosEngineInterface.h"
 #include "FPS/Data/WeaponData.h"
 #include "FPS/Interfaces/PlayerInterface.h"
 #include "FPS/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -59,6 +61,7 @@ void UCombatComponent::Local_FireWeapon()
 	
 	CurrentWeapon->WeaponTrace(HitResult, TraceDistance);
 	CurrentWeapon->Local_Fire(HitResult.ImpactPoint, HitResult.ImpactNormal, ImpactSurfaceType, true);
+	OnRoundFired.Broadcast(CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
 	
 	GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, CurrentWeapon->FireTime);
 	
@@ -78,7 +81,7 @@ void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& HitRes
 	Multicast_FireWeapon(HitResult, CurrentWeapon->Ammo);
 }
 
-void UCombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& HitResult, int32 AuthAmmo)
+void UCombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& HitResult, int AuthAmmo)
 {
 	APawn* ControlledPawn = Cast<APawn>(GetOwner());
 	if (ControlledPawn->IsLocallyControlled())

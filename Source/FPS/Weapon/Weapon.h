@@ -27,7 +27,7 @@ public:
 	void DryFire();
 	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> SurfaceType, bool bIsFirstPerson);
 	void Auth_Fire();
-	void Rep_Fire(int32 AuthAmmo);
+	void Rep_Fire(int AuthAmmo);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
 	FGameplayTag WeaponType;
@@ -39,12 +39,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
 	float AimFieldOfView;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 Ammo;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 MagCapacity;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 StartingCarriedAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Ammo")
+	int Ammo;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Ammo")
+	int MagCapacity;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Ammo")
+	int StartingCarriedAmmo;
 
 protected:
 	virtual void BeginPlay() override;
@@ -63,7 +63,7 @@ private:
 	
 	void SetMeshVisibilities(const APawn* OwningPawn) const;
 	
-	int32 Sequence;
+	int Sequence;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UMaterialInterface> ReticleMaterial;

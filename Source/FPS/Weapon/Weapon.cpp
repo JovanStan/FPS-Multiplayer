@@ -114,7 +114,7 @@ void AWeapon::Auth_Fire()
 	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
 }
 
-void AWeapon::Rep_Fire(int32 AuthAmmo)
+void AWeapon::Rep_Fire(int AuthAmmo)
 {
 	if (GetInstigator()->IsLocallyControlled())
 	{
@@ -169,7 +169,7 @@ UMaterialInstanceDynamic* AWeapon::GetAmmoCounterDynamic()
 	{
 		AmmoCounterDynamic = UMaterialInstanceDynamic::Create(AmmoCounterMaterial, this);
 	}
-	return ReticleDynamic;
+	return AmmoCounterDynamic;
 }
 
 

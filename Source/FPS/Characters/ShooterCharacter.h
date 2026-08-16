@@ -26,6 +26,7 @@ public:
 	virtual void BeginDestroy() override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void OnRep_PlayerState() override;
 	
 	/** Player Interface */
 	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const override;
