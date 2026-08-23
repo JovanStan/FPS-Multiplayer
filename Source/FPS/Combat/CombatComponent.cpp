@@ -141,6 +141,7 @@ void UCombatComponent::Initiate_Aim_Released()
 void UCombatComponent::Local_Aim(bool bPressed)
 {
 	bAiming = bPressed;
+	OnAimingStatusChanged.Broadcast(bAiming);
 }
 
 // This is for server to tell the rest of the clients that we are aiming
@@ -187,7 +188,7 @@ void UCombatComponent::InitializeWeaponWidgets()
 {
 	if (IsValid(CurrentWeapon))
 	{
-		OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamic());
+		OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamic(), CurrentWeapon->ReticleParams);
 		OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamic(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
 	}
 }

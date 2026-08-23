@@ -9,3 +9,31 @@ enum class ETurningInPlace : uint8
 	Right UMETA(DisplayName = "Turning Right"),
 	NotTurning UMETA(DisplayName = "Not Turning")
 };
+
+USTRUCT(BlueprintType)
+struct FReticleParams
+{
+	GENERATED_BODY()
+	
+	//Shape Cut Factor
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Reticle")
+	float ShapeCutFactor_RoundFired = 0.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Reticle")
+	float ShapeCutFactor_Aiming = 0.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Reticle")
+	float ShapeCutFactor_NotAiming = 0.f;
+	
+	// Scale Factor
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Reticle")
+	float ScaleFactor_RoundFired = 0.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Reticle")
+	float ScaleFactor_Aiming = 0.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Reticle")
+	float ScaleFactor_NotAiming = 0.f;
+	
+	// Interp Speeds
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Reticle")
+	float RoundFiredInterpSpeed = 20.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Reticle")
+	float AimingInterpSpeed = 15.f;
+};

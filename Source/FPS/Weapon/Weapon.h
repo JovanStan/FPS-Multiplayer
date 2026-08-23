@@ -3,8 +3,10 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "FPS/ShooterTypes/ShooterTypes.h"
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
+
 
 UENUM(BlueprintType)
 enum EFireType : uint8
@@ -38,6 +40,9 @@ public:
 	float FireTime;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
 	float AimFieldOfView;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FReticleParams ReticleParams;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Ammo")
 	int Ammo;
