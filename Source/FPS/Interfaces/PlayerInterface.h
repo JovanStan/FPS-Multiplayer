@@ -35,4 +35,7 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	AWeapon* GetCurrentWeapon();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	int32 GetReserveAmmo();
 };

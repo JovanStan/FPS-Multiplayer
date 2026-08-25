@@ -35,6 +35,7 @@ public:
 	virtual bool IsWeaponEquipped_Implementation(const AWeapon* Weapon) const override;
 	virtual void WeaponReplicated_Implementation() override;
 	virtual AWeapon* GetCurrentWeapon_Implementation() override;
+	virtual int32 GetReserveAmmo_Implementation() override;
 	/** ~Player Interface */
 	
 	UFUNCTION(BlueprintImplementableEvent)

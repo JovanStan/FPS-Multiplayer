@@ -48,7 +48,7 @@ private:
 	UFUNCTION()
 	void OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynamic, int RoundsCurrent, int RoundsMax);
 	UFUNCTION()
-	void OnRoundFired(int RoundsCurrent, int RoundsMax);
+	void OnRoundFired(int RoundsCurrent, int RoundsMax, int RoundsInReserve);
 	UFUNCTION()
 	void OnAimingStatusChanged(bool bIsAiming);
 };

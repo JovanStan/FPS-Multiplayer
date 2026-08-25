@@ -2,9 +2,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
-
 
 class AWeapon;
 class UWeaponData;
@@ -12,8 +12,10 @@ class UMaterialInstanceDynamic;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReticleChanged, UMaterialInstanceDynamic*, ReticleDynamic, const FReticleParams&, ReticleParams);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAmmoCounterChanged, UMaterialInstanceDynamic*, AmmoDynamic, int32, RoundsCurrent, int32, RoundMax);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRoundFired, int, RoundsCurrent, int, RoundsMax);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRoundFired, int, RoundsCurrent, int, RoundsMax, int, RoundsInReserve);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAimingStatusChanged, bool, bIsAiming);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCurrentReserveAmmoChanged, int32, RoundsInReserve, int32, RoundsInWeapon);
+
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPS_API UCombatComponent : public UActorComponent
@@ -52,9 +54,17 @@ public:
 	FRoundFired OnRoundFired;
 	UPROPERTY(BlueprintAssignable)
 	FAimingStatusChanged OnAimingStatusChanged;
+	UPROPERTY(BlueprintAssignable)
+	FCurrentReserveAmmoChanged OnCurrentReserveAmmoChanged;
 	
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool bAiming = false;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentReserveAmmo)
+	int32 CurrentReserveAmmo;
+	UFUNCTION()
+	void OnRep_CurrentReserveAmmo();
+
 	
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentWeapon)
@@ -63,6 +73,8 @@ protected:
 	float TraceDistance = 20000.f;
 	
 private:
+	TMap<FGameplayTag, int32> ReserveAmmo;
+	
 	UFUNCTION()
 	void OnRep_CurrentWeapon(AWeapon* LastWeapon);
 	

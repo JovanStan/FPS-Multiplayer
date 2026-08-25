@@ -142,7 +142,7 @@ void UShooterReticle::OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounter
 	}
 }
 
-void UShooterReticle::OnRoundFired(int RoundsCurrent, int RoundsMax)
+void UShooterReticle::OnRoundFired(int RoundsCurrent, int RoundsMax, int RoundsInReserve)
 {
 	_BaseCornerScaleFactor_RoundFired += CurrentReticleParams.ScaleFactor_RoundFired;
 	_BaseShapeCutFactor_RoundFired += CurrentReticleParams.ShapeCutFactor_RoundFired;

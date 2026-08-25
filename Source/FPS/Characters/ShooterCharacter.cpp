@@ -114,6 +114,11 @@ AWeapon* AShooterCharacter::GetCurrentWeapon_Implementation()
 	return CombatComponent->GetCurrentWeapon();
 }
 
+int32 AShooterCharacter::GetReserveAmmo_Implementation()
+{
+	return CombatComponent->CurrentReserveAmmo;
+}
+
 FRotator AShooterCharacter::GetFixedAimRotation() const
 {
 	FRotator AimRotation = GetBaseAimRotation();

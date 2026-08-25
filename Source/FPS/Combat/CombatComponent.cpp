@@ -20,6 +20,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	DOREPLIFETIME(ThisClass, Inventory);
 	DOREPLIFETIME(ThisClass, CurrentWeapon);
 	DOREPLIFETIME_CONDITION(ThisClass, bAiming, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ThisClass, CurrentReserveAmmo, COND_OwnerOnly);
 }
 
 void UCombatComponent::Initiate_CycleWeapon()
@@ -61,7 +62,7 @@ void UCombatComponent::Local_FireWeapon()
 	
 	CurrentWeapon->WeaponTrace(HitResult, TraceDistance);
 	CurrentWeapon->Local_Fire(HitResult.ImpactPoint, HitResult.ImpactNormal, ImpactSurfaceType, true);
-	OnRoundFired.Broadcast(CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+	OnRoundFired.Broadcast(CurrentWeapon->Ammo, CurrentWeapon->MagCapacity, CurrentReserveAmmo);
 	
 	GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, CurrentWeapon->FireTime);
 	
@@ -154,6 +155,9 @@ void UCombatComponent::Equip(AWeapon* Weapon)
 {
 	CurrentWeapon = Weapon;
 	CurrentWeapon->AttachToOwningPawn();
+	
+	CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->WeaponType);
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, Weapon->Ammo);
 }
 
 void UCombatComponent::SpawnInventory()
@@ -164,6 +168,7 @@ void UCombatComponent::SpawnInventory()
 	{
 		AWeapon* Weapon = SpawnWeapon(WeaponClass);
 		Inventory.AddUnique(Weapon);
+		ReserveAmmo.Add(Weapon->WeaponType, Weapon->StartingCarriedAmmo);
 	}
 	
 	if (Inventory.Num() > 0)
@@ -190,6 +195,14 @@ void UCombatComponent::InitializeWeaponWidgets()
 	{
 		OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamic(), CurrentWeapon->ReticleParams);
 		OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamic(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+	}
+}
+
+void UCombatComponent::OnRep_CurrentReserveAmmo()
+{
+	if (IsValid(CurrentWeapon))
+	{
+		OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
 	}
 }
 
