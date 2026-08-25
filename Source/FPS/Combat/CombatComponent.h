@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReticleChanged, UMaterialInstanceD
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAmmoCounterChanged, UMaterialInstanceDynamic*, AmmoDynamic, int32, RoundsCurrent, int32, RoundMax);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRoundFired, int, RoundsCurrent, int, RoundsMax, int, RoundsInReserve);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAimingStatusChanged, bool, bIsAiming);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCurrentReserveAmmoChanged, int32, RoundsInReserve, int32, RoundsInWeapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCurrentReserveAmmoChanged, int32, RoundsInReserve, int32, RoundsInWeapon, UMaterialInterface*, WeaponIconMaterial);
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -99,6 +99,9 @@ private:
 	bool bTriggerPressed = false;
 	FTimerHandle FireTimer;
 	void FireTimerFinished();
+	
+	int32 AdvanceWeaponIndex();
+	int32 Local_WeaponIndex;
 	
 public:
 	FORCEINLINE AWeapon* GetCurrentWeapon() { return CurrentWeapon;}

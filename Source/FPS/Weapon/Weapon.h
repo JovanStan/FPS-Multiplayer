@@ -6,7 +6,15 @@
 #include "FPS/ShooterTypes/ShooterTypes.h"
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
-
+UENUM(BlueprintType)
+enum class EWeaponStatus : uint8
+{
+	Idle,
+	Firing,
+	Reloading,
+	Cycling,
+	Unequipped
+};
 
 UENUM(BlueprintType)
 enum EFireType : uint8
@@ -36,6 +44,8 @@ public:
 	UPROPERTY(EditAnywhere, Category="FPS|FireType")
 	TEnumAsByte<EFireType> FireType;
 	
+	EWeaponStatus WeaponStatus;
+	
 	UPROPERTY(EditAnywhere)
 	float FireTime;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS|WeaponType")
@@ -43,6 +53,8 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly)
 	FReticleParams ReticleParams;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterialInterface> WeaponIcon;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Ammo")
 	int Ammo;

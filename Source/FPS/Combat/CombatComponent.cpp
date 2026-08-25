@@ -11,6 +11,8 @@
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	
+	Local_WeaponIndex = 0;
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -25,8 +27,14 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 
 void UCombatComponent::Initiate_CycleWeapon()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Cycle Weapon");
+	if (!IsValid(CurrentWeapon)) return;
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Cycling) return;
+	
+	AdvanceWeaponIndex();
+	
 }
+
+
 
 void UCombatComponent::Initiate_FireWeapon_Pressed()
 {
@@ -116,6 +124,15 @@ void UCombatComponent::FireTimerFinished()
 	}
 }
 
+int32 UCombatComponent::AdvanceWeaponIndex()
+{
+	if (Inventory.Num() >= 2)
+	{
+		Local_WeaponIndex = (Local_WeaponIndex + 1) % Inventory.Num();
+	}
+	return Local_WeaponIndex;
+}
+
 void UCombatComponent::Initiate_FireWeapon_Released()
 {
 	bTriggerPressed = false;
@@ -157,7 +174,7 @@ void UCombatComponent::Equip(AWeapon* Weapon)
 	CurrentWeapon->AttachToOwningPawn();
 	
 	CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->WeaponType);
-	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, Weapon->Ammo);
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, Weapon->Ammo, CurrentWeapon->WeaponIcon);
 }
 
 void UCombatComponent::SpawnInventory()
@@ -202,7 +219,7 @@ void UCombatComponent::OnRep_CurrentReserveAmmo()
 {
 	if (IsValid(CurrentWeapon))
 	{
-		OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
+		OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
 	}
 }
 
