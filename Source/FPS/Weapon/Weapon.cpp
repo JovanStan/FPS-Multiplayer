@@ -36,29 +36,30 @@ AWeapon::AWeapon()
 	StartingCarriedAmmo = 10;
 	Sequence = 0;
 	
-	WeaponStatus = EWeaponStatus::Unequipped;
+	WeaponStatus = EWeaponStatus::Idle;
 }
 
-void AWeapon::OnRep_Instigator()
-{
-	Super::OnRep_Instigator();
-	
-	AttachToOwningPawn();
-}
 
-void AWeapon::AttachToOwningPawn() const
+void AWeapon::AttachToOwningPawn(APawn* Pawn) const
 {
-	APawn* OwningPawn = GetInstigator();
-	if (!IsValid(OwningPawn) || !OwningPawn->Implements<UPlayerInterface>()) return;
+	if (!IsValid(Pawn) || !Pawn->Implements<UPlayerInterface>()) return;
 	
-	SetMeshVisibilities(OwningPawn);
+	SetMeshVisibilities(Pawn);
 	
-	const FName AttachPoint = IPlayerInterface::Execute_GetWeaponAttachPoint(OwningPawn, WeaponType);
-	USkeletalMeshComponent* FirstPersonMeshPawn = IPlayerInterface::Execute_GetFirstPersonMesh(OwningPawn);
-	USkeletalMeshComponent* ThirdPersonMeshPawn = IPlayerInterface::Execute_GetThirdPersonMesh(OwningPawn);
+	const FName AttachPoint = IPlayerInterface::Execute_GetWeaponAttachPoint(Pawn, WeaponType);
+	USkeletalMeshComponent* FirstPersonMeshPawn = IPlayerInterface::Execute_GetFirstPersonMesh(Pawn);
+	USkeletalMeshComponent* ThirdPersonMeshPawn = IPlayerInterface::Execute_GetThirdPersonMesh(Pawn);
 	
 	FirstPersonMesh->AttachToComponent(FirstPersonMeshPawn, FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
 	ThirdPersonMesh->AttachToComponent(ThirdPersonMeshPawn, FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
+}
+
+void AWeapon::DetachFromOwningPawn()
+{
+	FirstPersonMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+	FirstPersonMesh->SetHiddenInGame(true);
+	ThirdPersonMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+	ThirdPersonMesh->SetHiddenInGame(true);
 }
 
 void AWeapon::WeaponTrace(FHitResult& HitResult, float TraceDistance)

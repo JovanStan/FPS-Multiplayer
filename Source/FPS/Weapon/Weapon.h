@@ -30,9 +30,9 @@ class FPS_API AWeapon : public AActor
 
 public:
 	AWeapon();
-	virtual void OnRep_Instigator() override;
 	
-	void AttachToOwningPawn() const;
+	void AttachToOwningPawn(APawn* Pawn) const;
+	void DetachFromOwningPawn();
 	void WeaponTrace(FHitResult& HitResult, float TraceDistance);
 	void DryFire();
 	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> SurfaceType, bool bIsFirstPerson);

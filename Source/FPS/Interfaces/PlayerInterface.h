@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	bool IsWeaponEquipped(const AWeapon* Weapon) const;
 	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Notify_CycleWeapon();
+	
 	UFUNCTION(BlueprintNativeEvent)
 	void WeaponReplicated();
 	

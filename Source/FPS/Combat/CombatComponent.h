@@ -37,10 +37,17 @@ public:
 	void Initiate_Aim_Pressed();
 	void Initiate_Aim_Released();
 	
+	void Notify_CycleWeapon();
+	UFUNCTION()
+	void BlendOut_CycleWeapon(UAnimMontage* Montage, bool bInterrupted);
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="FPS|Weapon")
 	TObjectPtr<UWeaponData> WeaponData;
 	
 	void Equip(AWeapon* Weapon);
+	void EquipWeapon(AWeapon* Weapon);
+	UFUNCTION(Server, Reliable)
+	void Server_EquipWeapon(AWeapon* Weapon);
 	void SpawnInventory();
 	void DestroyInventory();
 	
@@ -96,12 +103,20 @@ private:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_FireWeapon(const FHitResult& HitResult, int AuthAmmo);
 	
+	void Local_CycleWeapon(int32 WeaponIndex);
+	UFUNCTION(Server, Reliable)
+	void Server_CycleWeapon(int32 WeaponIndex);
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiCast_CycleWeapon(int32 WeaponIndex);
+	
 	bool bTriggerPressed = false;
 	FTimerHandle FireTimer;
 	void FireTimerFinished();
 	
 	int32 AdvanceWeaponIndex();
 	int32 Local_WeaponIndex;
+	
+	void SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon);
 	
 public:
 	FORCEINLINE AWeapon* GetCurrentWeapon() { return CurrentWeapon;}
