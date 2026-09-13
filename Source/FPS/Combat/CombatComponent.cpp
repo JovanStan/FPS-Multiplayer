@@ -134,6 +134,8 @@ void UCombatComponent::Local_FireWeapon()
 	if (!IsValid(CurrentWeapon)) return;
 	if (!IsValid(WeaponData)) return;
 	
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Firing;
+	
 	UAnimMontage* MontageFirstPerson = WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->WeaponType).FireMontage;
 	USkeletalMeshComponent* MeshFirstPerson = IPlayerInterface::Execute_GetFirstPersonMesh(GetOwner());
 	
@@ -159,6 +161,8 @@ void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& HitRes
 {
 	// Server then MultiCast to all other clients that we are firing
 	if (!IsValid(CurrentWeapon)) return;
+	
+	if (CurrentWeapon->Ammo <= 0) return;
 	
 	if (GetNetMode() != NM_ListenServer || !Cast<APawn>(GetOwner())->IsLocallyControlled())
 	{
@@ -193,7 +197,20 @@ void UCombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& Hit
 
 void UCombatComponent::FireTimerFinished()
 {
-	if (!IsValid(CurrentWeapon)) return;
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(CurrentWeapon) || !IsValid(OwningPawn)) return;
+	
+	if (CurrentWeapon->Ammo == 0 && CurrentReserveAmmo > 0 && OwningPawn->IsLocallyControlled())
+	{
+		Local_ReloadWeapon();
+		Server_ReloadWeapon();
+		return;
+	} 
+	
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Firing)
+	{
+		CurrentWeapon->WeaponStatus = EWeaponStatus::Idle;
+	}
 	
 	if (bTriggerPressed && CurrentWeapon->FireType == Automatic && CurrentWeapon->Ammo > 0)
 	{
@@ -219,7 +236,54 @@ void UCombatComponent::Initiate_FireWeapon_Released()
 void UCombatComponent::Initiate_ReloadWeapon()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, "Reload Weapon");
+	
+	if (!IsValid(CurrentWeapon)) return;
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Cycling || CurrentWeapon->WeaponStatus == EWeaponStatus::Reloading) return;
+	if (CurrentWeapon->Ammo == CurrentWeapon->MagCapacity) return;
+	if (CurrentReserveAmmo == 0) return;
+	
+	Local_ReloadWeapon();
+	Server_ReloadWeapon();
 }
+
+void UCombatComponent::Local_ReloadWeapon()
+{
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(CurrentWeapon) || !IsValid(OwningPawn)) return;
+	
+	const bool bIsLocal = OwningPawn->IsLocallyControlled();
+	
+	UAnimMontage* ReloadMontage = bIsLocal ? 
+	WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->WeaponType).ReloadMontage :
+	WeaponData->ThirdPersonMontages.FindChecked(CurrentWeapon->WeaponType).ReloadMontage;
+	const USkeletalMeshComponent* Mesh = bIsLocal ? IPlayerInterface::Execute_GetFirstPersonMesh(OwningPawn) : IPlayerInterface::Execute_GetThirdPersonMesh(OwningPawn);
+	
+	if (IsValid(ReloadMontage) && IsValid(Mesh))
+	{
+		Mesh->GetAnimInstance()->Montage_Play(ReloadMontage);
+	}
+	
+	UAnimMontage* WeaponReloadMontage = WeaponData->WeaponMontages.FindChecked(CurrentWeapon->WeaponType).ReloadMontage;
+	USkeletalMeshComponent* WeaponMesh = bIsLocal ? CurrentWeapon->GetFirstPersonMesh() : CurrentWeapon->GetThirdPersonMesh();
+	
+	if (IsValid(WeaponReloadMontage) && IsValid(WeaponMesh))
+	{
+		WeaponMesh->GetAnimInstance()->Montage_Play(WeaponReloadMontage);
+	}
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Reloading;
+}
+
+
+void UCombatComponent::Server_ReloadWeapon_Implementation()
+{
+	Multicast_ReloadWeapon();
+}
+
+void UCombatComponent::Multicast_ReloadWeapon_Implementation()
+{
+	Local_ReloadWeapon();
+}
+
 
 void UCombatComponent::Initiate_Aim_Pressed()
 {
@@ -233,6 +297,66 @@ void UCombatComponent::Initiate_Aim_Released()
 	Server_Aim(false);
 }
 
+void UCombatComponent::AddAmmo(const FGameplayTag& WeaponType, int32 Amount)
+{
+	if (GetOwner()->HasAuthority() && !IsValid(CurrentWeapon)) return;
+	
+	if (!ReserveAmmo.Contains(WeaponType))
+	{
+		ReserveAmmo.Add(WeaponType, Amount);
+	}
+	else
+	{
+		const int32 NewAmmo = ReserveAmmo.FindChecked(WeaponType) + Amount;
+		ReserveAmmo[WeaponType] = NewAmmo;
+		
+		if (CurrentWeapon->WeaponType.MatchesTagExact(WeaponType))
+		{
+			CurrentReserveAmmo = NewAmmo;
+			if (CurrentWeapon->Ammo == 0 && NewAmmo > 0)
+			{
+				Server_ReloadWeapon();
+			}
+			OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamic(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+			OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
+		}
+	}
+}
+
+void UCombatComponent::Notify_ReloadWeapon()
+{
+	if (!IsValid(CurrentWeapon)) return;
+	
+	if (GetNetMode() == NM_ListenServer || GetNetMode() == NM_DedicatedServer || GetNetMode() == NM_Standalone)
+	{
+		const int32 EmptySpace = CurrentWeapon->MagCapacity - CurrentWeapon->Ammo;
+		const int32 AmountToRefill = FMath::Min(EmptySpace, CurrentReserveAmmo);
+		CurrentWeapon->Ammo += AmountToRefill;
+		ReserveAmmo[CurrentWeapon->WeaponType] = ReserveAmmo[CurrentWeapon->WeaponType] - AmountToRefill;
+		CurrentReserveAmmo = ReserveAmmo[CurrentWeapon->WeaponType];
+		Client_ReloadWeapon(CurrentWeapon->Ammo, CurrentReserveAmmo);
+	}
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Idle;
+	if (bTriggerPressed && CurrentWeapon->Ammo > 0)
+	{
+		Local_FireWeapon();
+	}
+}
+
+void UCombatComponent::Client_ReloadWeapon_Implementation(int32 NewWeaponAmmo, int32 NewCarriedAmmo)
+{
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(CurrentWeapon) || !IsValid(OwningPawn)) return;
+	
+	if (OwningPawn->IsLocallyControlled())
+	{
+		CurrentWeapon->Ammo = NewWeaponAmmo;
+		CurrentReserveAmmo = NewCarriedAmmo;
+		
+		OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamic(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+		OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
+	}
+}
 
 // This is for local player
 void UCombatComponent::Local_Aim(bool bPressed)
@@ -300,8 +424,14 @@ void UCombatComponent::SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon)
 	{
 		CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->WeaponType);
 	}
-	
+	if (!IsValid(CurrentWeapon)) return;
 	CurrentWeapon->AttachToOwningPawn(OwningPawn);
+	
+	if (CurrentWeapon->Ammo == 0 && CurrentReserveAmmo > 0 && OwningPawn->IsLocallyControlled())
+	{
+		Local_ReloadWeapon();
+		Server_ReloadWeapon();
+	}
 }
 
 void UCombatComponent::SpawnInventory()

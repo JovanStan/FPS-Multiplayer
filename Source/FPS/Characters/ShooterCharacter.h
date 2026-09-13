@@ -37,6 +37,8 @@ public:
 	virtual AWeapon* GetCurrentWeapon_Implementation() override;
 	virtual int32 GetReserveAmmo_Implementation() override;
 	virtual void Notify_CycleWeapon_Implementation() override;
+	virtual void Notify_ReloadWeapon_Implementation() override;
+	virtual void AddAmmo_Implementation(const FGameplayTag& WeaponType, int32 Amount) override;
 	/** ~Player Interface */
 	
 	UFUNCTION(BlueprintImplementableEvent)

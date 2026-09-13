@@ -127,6 +127,22 @@ void AShooterCharacter::Notify_CycleWeapon_Implementation()
 	}
 }
 
+void AShooterCharacter::Notify_ReloadWeapon_Implementation()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->Notify_ReloadWeapon();
+	}
+}
+
+void AShooterCharacter::AddAmmo_Implementation(const FGameplayTag& WeaponType, int32 Amount)
+{
+	if (HasAuthority() && IsValid(CombatComponent))
+	{
+		CombatComponent->AddAmmo(WeaponType, Amount);
+	}
+}
+
 FRotator AShooterCharacter::GetFixedAimRotation() const
 {
 	FRotator AimRotation = GetBaseAimRotation();

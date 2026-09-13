@@ -37,6 +37,9 @@ public:
 	void Initiate_Aim_Pressed();
 	void Initiate_Aim_Released();
 	
+	void AddAmmo(const FGameplayTag& WeaponType, int32 Amount);
+	
+	void Notify_ReloadWeapon();
 	void Notify_CycleWeapon();
 	UFUNCTION()
 	void BlendOut_CycleWeapon(UAnimMontage* Montage, bool bInterrupted);
@@ -100,6 +103,8 @@ private:
 	void Local_FireWeapon();
 	UFUNCTION(Server, Reliable)
 	void Server_FireWeapon(const FHitResult& HitResult);
+	UFUNCTION(Client, Reliable)
+	void Client_ReloadWeapon(int32 NewWeaponAmmo, int32 NewCarriedAmmo);
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_FireWeapon(const FHitResult& HitResult, int AuthAmmo);
 	
@@ -108,6 +113,12 @@ private:
 	void Server_CycleWeapon(int32 WeaponIndex);
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiCast_CycleWeapon(int32 WeaponIndex);
+	
+	void Local_ReloadWeapon();
+	UFUNCTION(Server, Reliable)
+	void Server_ReloadWeapon();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ReloadWeapon();
 	
 	bool bTriggerPressed = false;
 	FTimerHandle FireTimer;
