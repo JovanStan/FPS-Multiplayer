@@ -303,7 +303,7 @@ void UCombatComponent::AddAmmo(const FGameplayTag& WeaponType, int32 Amount)
 	
 	if (!ReserveAmmo.Contains(WeaponType))
 	{
-		ReserveAmmo.Add(WeaponType, Amount);
+		ReserveAmmo.Add(WeaponType, Amount);1
 	}
 	else
 	{

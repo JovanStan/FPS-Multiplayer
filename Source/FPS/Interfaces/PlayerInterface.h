@@ -46,4 +46,7 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	int32 GetReserveAmmo();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool DoDamage(float DamageAmount, AActor* DamageInstigator);
 };

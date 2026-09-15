@@ -143,6 +143,11 @@ void AShooterCharacter::AddAmmo_Implementation(const FGameplayTag& WeaponType, i
 	}
 }
 
+bool AShooterCharacter::DoDamage_Implementation(float DamageAmount, AActor* DamageInstigator)
+{
+	return false;
+}
+
 FRotator AShooterCharacter::GetFixedAimRotation() const
 {
 	FRotator AimRotation = GetBaseAimRotation();
