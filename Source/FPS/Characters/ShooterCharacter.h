@@ -69,7 +69,7 @@ protected:
 
 private:
 	// 1st person view (arms)
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
 	
 	UPROPERTY(VisibleAnywhere)
@@ -94,6 +94,12 @@ private:
 	
 	bool bWeaponFirstReplicated;
 	
+	FTimerHandle DeathTimer;
+	
+	void DeathTimerFinished();
+	
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	float RespawnTime = 3.f;
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	float AO_Yaw;
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
@@ -102,6 +108,8 @@ private:
 	ETurningInPlace TurningStatus;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TArray<TObjectPtr<UAnimMontage>> HitReacts;
+	
+
 	
 public:
 	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComponent; }
