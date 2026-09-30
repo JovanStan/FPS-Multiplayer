@@ -9,6 +9,7 @@
 AShooterPlayerController::AShooterPlayerController()
 {
 	bReplicates = true;
+	bPawnAlive = true;
 }
 
 
@@ -48,6 +49,7 @@ void AShooterPlayerController::SetupInputComponent()
 void AShooterPlayerController::Input_Crouch()
 {
 	if (!IsValid(GetCharacter())) return;
+	if (!bPawnAlive) return;
 	
 	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacter()->GetCharacterMovement())
 	{
@@ -58,6 +60,7 @@ void AShooterPlayerController::Input_Crouch()
 void AShooterPlayerController::Input_Jump()
 {
 	if (!IsValid(GetCharacter())) return;
+	if (!bPawnAlive) return;
 	
 	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacter()->GetCharacterMovement())
 	{
@@ -74,6 +77,8 @@ void AShooterPlayerController::Input_Jump()
 
 void AShooterPlayerController::Input_Move(const FInputActionValue& Value)
 {
+	if (!bPawnAlive) return;
+	
 	const FVector2D InputAxisVector = Value.Get<FVector2D>();
 	const FRotator Rotation = GetControlRotation();
 	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -90,6 +95,8 @@ void AShooterPlayerController::Input_Move(const FInputActionValue& Value)
 
 void AShooterPlayerController::Input_Look(const FInputActionValue& Value)
 {
+	if (!bPawnAlive) return;
+	
 	const FVector2D InputAxisVector = Value.Get<FVector2D>();
 	
 	AddYawInput(InputAxisVector.X);
@@ -114,6 +121,8 @@ void AShooterPlayerController::Input_ReloadWeapon()
 
 void AShooterPlayerController::Input_FireWeapon_Pressed()
 {
+	if (!bPawnAlive) return;
+	
 	if (CachedShooterCharacter->GetCombatComponent())
 	{
 		CachedShooterCharacter->GetCombatComponent()->Initiate_FireWeapon_Pressed();
@@ -122,6 +131,7 @@ void AShooterPlayerController::Input_FireWeapon_Pressed()
 
 void AShooterPlayerController::Input_FireWeapon_Released()
 {
+
 	if (CachedShooterCharacter->GetCombatComponent())
 	{
 		CachedShooterCharacter->GetCombatComponent()->Initiate_FireWeapon_Released();
@@ -130,6 +140,8 @@ void AShooterPlayerController::Input_FireWeapon_Released()
 
 void AShooterPlayerController::Input_Aim_Pressed()
 {
+	if (!bPawnAlive) return;
+	
 	if (CachedShooterCharacter->GetCombatComponent())
 	{
 		CachedShooterCharacter->GetCombatComponent()->Initiate_Aim_Pressed();

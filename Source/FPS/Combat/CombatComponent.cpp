@@ -161,8 +161,12 @@ void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& HitRes
 {
 	// Server then MultiCast to all other clients that we are firing
 	if (!IsValid(CurrentWeapon)) return;
-	
 	if (CurrentWeapon->Ammo <= 0) return;
+	
+	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->Implements<UPlayerInterface>())
+	{
+		IPlayerInterface::Execute_DoDamage(HitResult.GetActor(), CurrentWeapon->Damage, GetOwner());
+	}
 	
 	if (GetNetMode() != NM_ListenServer || !Cast<APawn>(GetOwner())->IsLocallyControlled())
 	{
@@ -303,7 +307,7 @@ void UCombatComponent::AddAmmo(const FGameplayTag& WeaponType, int32 Amount)
 	
 	if (!ReserveAmmo.Contains(WeaponType))
 	{
-		ReserveAmmo.Add(WeaponType, Amount);1
+		ReserveAmmo.Add(WeaponType, Amount);
 	}
 	else
 	{

@@ -2,8 +2,11 @@
 #include "ShooterCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "FPS/FPS.h"
 #include "FPS/Combat/CombatComponent.h"
 #include "FPS/Data/WeaponData.h"
+#include "FPS/Player/ShooterPlayerController.h"
 #include "FPS/ShooterTypes/ShooterTypes.h"
 #include "FPS/Weapon/Weapon.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -42,6 +45,9 @@ AShooterCharacter::AShooterCharacter()
 	
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("Combat Component");
 	CombatComponent->SetIsReplicated(true);
+	
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("Health Component");
+	HealthComponent->SetIsReplicated(true);
 	
 	DefaultFieldOfView = 90.f;
 	TurningStatus = ETurningInPlace::NotTurning;
@@ -145,7 +151,25 @@ void AShooterCharacter::AddAmmo_Implementation(const FGameplayTag& WeaponType, i
 
 bool AShooterCharacter::DoDamage_Implementation(float DamageAmount, AActor* DamageInstigator)
 {
+	if (!IsValid(HealthComponent)) return false;
+	
+	HealthComponent->ChangeHealthByAmount(-DamageAmount, DamageInstigator);
+	
+	const int32 MontageSelection = FMath::RandRange(0, HitReacts.Num() - 1);
+	Multicast_HitReact(MontageSelection);
+	
 	return false;
+}
+
+void AShooterCharacter::Multicast_HitReact_Implementation(int32 MontageIndex)
+{
+	if (GetNetMode() != NM_DedicatedServer && !IsLocallyControlled())
+	{
+		if (HitReacts.IsValidIndex(MontageIndex))
+		{
+			GetMesh()->GetAnimInstance()->Montage_Play(HitReacts[MontageIndex]);
+		}
+	}
 }
 
 FRotator AShooterCharacter::GetFixedAimRotation() const
@@ -164,6 +188,26 @@ FRotator AShooterCharacter::GetFixedAimRotation() const
 bool AShooterCharacter::HasCurrentWeapon() const
 {
 	return IsValid(CombatComponent) && CombatComponent->GetCurrentWeapon() != nullptr;
+}
+
+void AShooterCharacter::OnDeathStarted()
+{
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		DeathEffects();
+		if (AShooterPlayerController* PC = Cast<AShooterPlayerController>(GetController()); IsValid(PC))
+		{
+			DisableInput(PC);
+			if (PC->IsLocalController())
+			{
+				PC->bPawnAlive = false;
+			}
+		}
+	}
+	
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(FPSTraceChannels::ECC_Weapon, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(FPSTraceChannels::ECC_Weapon, ECR_Ignore);
 }
 
 void AShooterCharacter::CalculateFabrikSocketTransform()
@@ -242,8 +286,15 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	HealthComponent->OnDeathStarted.AddDynamic(this, &AShooterCharacter::OnDeathStarted);
 	FirstPersonCamera->SetFieldOfView(DefaultFieldOfView);
 	StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+	
+	AShooterPlayerController* PC = Cast<AShooterPlayerController>(GetController());
+	if (IsValid(PC))
+	{
+		PC->bPawnAlive = true;
+	}
 }
 
 void AShooterCharacter::BeginDestroy()

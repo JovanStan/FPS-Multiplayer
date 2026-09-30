@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FPS/Health/HealthComponent.h"
 #include "FPS/Interfaces/PlayerInterface.h"
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
@@ -56,6 +57,15 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FWeaponFirstReplicated OnWeaponFirstReplicated;
 
+protected:
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_HitReact(int32 MontageIndex);
+	
+	UFUNCTION()
+	void OnDeathStarted();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void DeathEffects();
 
 private:
 	// 1st person view (arms)
@@ -69,6 +79,8 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<UCombatComponent> CombatComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<UHealthComponent> HealthComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	float DefaultFieldOfView;
@@ -88,6 +100,8 @@ private:
 	float MovementOffsetYaw;
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	ETurningInPlace TurningStatus;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TArray<TObjectPtr<UAnimMontage>> HitReacts;
 	
 public:
 	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComponent; }
