@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
+class UEliminationComponent;
 enum class ETurningInPlace : uint8;
 class UInputAction;
 class UCombatComponent;
@@ -81,6 +82,8 @@ private:
 	TObjectPtr<UCombatComponent> CombatComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<UHealthComponent> HealthComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<UEliminationComponent> EliminationComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	float DefaultFieldOfView;

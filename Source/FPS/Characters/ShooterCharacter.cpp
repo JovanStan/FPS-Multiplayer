@@ -6,6 +6,7 @@
 #include "FPS/FPS.h"
 #include "FPS/Combat/CombatComponent.h"
 #include "FPS/Data/WeaponData.h"
+#include "FPS/Elimination/EliminationComponent.h"
 #include "FPS/Game/ShooterGameModeBase.h"
 #include "FPS/Player/ShooterPlayerController.h"
 #include "FPS/ShooterTypes/ShooterTypes.h"
@@ -50,6 +51,9 @@ AShooterCharacter::AShooterCharacter()
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("Health Component");
 	HealthComponent->SetIsReplicated(true);
+	
+	EliminationComponent = CreateDefaultSubobject<UEliminationComponent>("Elimination Component");
+	EliminationComponent->SetIsReplicated(false);
 	
 	DefaultFieldOfView = 90.f;
 	TurningStatus = ETurningInPlace::NotTurning;
@@ -311,6 +315,11 @@ void AShooterCharacter::BeginPlay()
 	if (IsValid(PC))
 	{
 		PC->bPawnAlive = true;
+	}
+	
+	if (HasAuthority())
+	{
+		CombatComponent->OnRoundReported.AddDynamic(EliminationComponent, &UEliminationComponent::OnRoundReported);
 	}
 }
 

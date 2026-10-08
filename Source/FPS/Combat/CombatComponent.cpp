@@ -163,6 +163,8 @@ void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& HitRes
 	if (!IsValid(CurrentWeapon)) return;
 	if (CurrentWeapon->Ammo <= 0) return;
 	
+	
+	
 	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->Implements<UPlayerInterface>())
 	{
 		IPlayerInterface::Execute_DoDamage(HitResult.GetActor(), CurrentWeapon->Damage, GetOwner());
