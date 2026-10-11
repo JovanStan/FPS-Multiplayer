@@ -1,7 +1,10 @@
 ﻿
 #include "EliminationComponent.h"
+
+#include "../Game/ShooterGameStateBase.h"
 #include "../Player/ShooterPlayerState.h"
 #include "../ShooterTypes/ShooterTypes.h"
+#include "Kismet/GameplayStatics.h"
 
 UEliminationComponent::UEliminationComponent()
 {
@@ -9,6 +12,8 @@ UEliminationComponent::UEliminationComponent()
 	SequentialEliminationInterval = 2.f;
 	LastEliminationTime = 0.f;
 	SequentialElimination = 0;
+	Streak = 0;
+	EliminationsNeededForStreak = 3;
 }
 
 void UEliminationComponent::OnRoundReported(AActor* Attacker, AActor* Victim, bool bHit, bool bHeadShot, bool bLethal)
@@ -54,13 +59,19 @@ void UEliminationComponent::ProcessHitOrMiss(bool bHit, AShooterPlayerState* Att
 
 void UEliminationComponent::ProcessElimination(bool bHeadshot, AShooterPlayerState* AttackerPlayerState, AShooterPlayerState* VictimPlayerState)
 {
-	AttackerPlayerState->AddScoredKill();
+	AttackerPlayerState->AddScoredElimination();
 	VictimPlayerState->AddDefeat();
 	
-	 ESpecialEliminationType SpecialEliminationType{};
+	ESpecialEliminationType SpecialEliminationType{};
+	AShooterGameStateBase* ShooterGameState = Cast<AShooterGameStateBase>(UGameplayStatics::GetGameState(AttackerPlayerState));
 	
 	ProcessHeadshot(bHeadshot, SpecialEliminationType, AttackerPlayerState);
 	ProcessSequentialElimination(SpecialEliminationType, AttackerPlayerState);
+	ProcessStreaks(SpecialEliminationType, AttackerPlayerState, VictimPlayerState);
+	if (IsValid(ShooterGameState))
+	{
+		ProcessFirstBlood(ShooterGameState, SpecialEliminationType, AttackerPlayerState);
+	}
 }
 
 void UEliminationComponent::ProcessHeadshot(bool bHeadshot, ESpecialEliminationType& SpecialEliminationType, AShooterPlayerState* AttackerPlayerState)
@@ -68,7 +79,7 @@ void UEliminationComponent::ProcessHeadshot(bool bHeadshot, ESpecialEliminationT
 	if (bHeadshot)
 	{
 		SpecialEliminationType |= ESpecialEliminationType::Headshot;
-		AttackerPlayerState->AddHeadShotKill();
+		AttackerPlayerState->AddHeadShotElimination();
 	}
 }
 
@@ -88,7 +99,43 @@ void UEliminationComponent::ProcessSequentialElimination(ESpecialEliminationType
 	if (SequentialElimination > 1)
 	{
 		SpecialEliminationType |= ESpecialEliminationType::Sequential;
-		AttackerPlayerState->AddSequentialKills(SequentialElimination);
+		AttackerPlayerState->AddSequentialEliminations(SequentialElimination);
+	}
+}
+
+void UEliminationComponent::ProcessStreaks(ESpecialEliminationType& SpecialEliminationType, AShooterPlayerState* AttackerPlayerState, AShooterPlayerState* VictimPlayerState)
+{
+	++Streak;
+	if (Streak >= EliminationsNeededForStreak)
+	{
+		SpecialEliminationType |= ESpecialEliminationType::Streak;
+		AttackerPlayerState->SetOnStreak(true);
+		AttackerPlayerState->UpdateHighestStreak(Streak);
+	}
+	
+	if (VictimPlayerState->IsOnStreak())
+	{
+		SpecialEliminationType |= ESpecialEliminationType::Showstopper;
+		VictimPlayerState->AddShowStopperElimination();
+		VictimPlayerState->SetOnStreak(false);
+	}
+	
+	if (AttackerPlayerState->GetLastAttacker() == VictimPlayerState)
+	{
+		SpecialEliminationType |= ESpecialEliminationType::Revenge;
+		AttackerPlayerState->AddRevengeElimination();
+		AttackerPlayerState->SetLastAttacker(nullptr);
+	}
+	
+	VictimPlayerState->SetLastAttacker(AttackerPlayerState);
+}
+
+void UEliminationComponent::ProcessFirstBlood(AShooterGameStateBase* ShooterGameState, ESpecialEliminationType& SpecialEliminationType, AShooterPlayerState* AttackerPlayerState)
+{
+	if (!ShooterGameState->HasFirstBloodBeenHad())
+	{
+		SpecialEliminationType |= ESpecialEliminationType::FirstBlood;
+		AttackerPlayerState->GotFirstBlood();
 	}
 }
 

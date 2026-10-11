@@ -14,35 +14,41 @@ class FPS_API AShooterPlayerState : public APlayerState
 public:
 	AShooterPlayerState();
 	
-	void AddScoredKill();
+	void AddScoredElimination();
 	void AddDefeat();
 	void AddHit();
 	void AddMiss();
-	void AddHeadShotKill();
-	void AddSequentialKills(int32 SequenceCount);
-	void UpdateHighestStream(int32 StreakCount);
-	void AddRevengeKill();
-	void AddDethroneKill();
-	void AddShowStopperKill();
+	void AddHeadShotElimination();
+	void AddSequentialEliminations(int32 SequenceCount);
+	void UpdateHighestStreak(int32 StreakCount);
+	void AddRevengeElimination();
+	void AddDethroneElimination();
+	void AddShowStopperElimination();
 	void GotFirstBlood();
 	void IsWinner();
 	
+	void SetOnStreak(bool bIsOnStreak);
+	bool IsOnStreak() const;
+	
+	void SetLastAttacker(APlayerState* AttackerPlayerState);
+	APlayerState* GetLastAttacker() const;
+	
 private:
-	int32 ScoredKills;
+	int32 ScoredEliminations;
 	int32 Defeats;
 	int32 Hits;
 	int32 Misses;
 	bool bOnStreak;
-	int32 HeadShotsKills;
+	int32 HeadShotsEliminations;
 	
 	// multiple kills within a short period of time
 	TMap<int32, int32> SequentialKills;
 	int32 HighestStreak;
-	int32 RevengeKills;
-	int32 DethroneKills;
-	int32 ShowStopperKills;
+	int32 RevengeEliminations;
+	int32 DethroneEliminations;
+	int32 ShowStopperEliminations;
 	bool bFirstBlood;
 	bool bWinner;
 	
-	
+	TWeakObjectPtr<APlayerState> LastAttacker;
 };

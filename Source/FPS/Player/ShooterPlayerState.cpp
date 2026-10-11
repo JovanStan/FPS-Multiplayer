@@ -4,24 +4,24 @@
 AShooterPlayerState::AShooterPlayerState()
 {
 	SetNetUpdateFrequency(100.f);
-	 ScoredKills = 0;
+	 ScoredEliminations = 0;
 	 Defeats = 0;
 	 Hits = 0;
 	 Misses = 0;
 	 bOnStreak = false;
-	 HeadShotsKills = 0;
+	 HeadShotsEliminations = 0;
 
 	 HighestStreak = 0;
-	 RevengeKills = 0;
-	 DethroneKills = 0;
-	 ShowStopperKills = 0;
+	 RevengeEliminations = 0;
+	 DethroneEliminations = 0;
+	 ShowStopperEliminations = 0;
 	 bFirstBlood = false;
 	 bWinner = false;
 }
 
-void AShooterPlayerState::AddScoredKill()
+void AShooterPlayerState::AddScoredElimination()
 {
-	++ScoredKills;
+	++ScoredEliminations;
 }
 
 void AShooterPlayerState::AddDefeat()
@@ -39,12 +39,12 @@ void AShooterPlayerState::AddMiss()
 	++Misses;
 }
 
-void AShooterPlayerState::AddHeadShotKill()
+void AShooterPlayerState::AddHeadShotElimination()
 {
-	++HeadShotsKills;
+	++HeadShotsEliminations;
 }
 
-void AShooterPlayerState::AddSequentialKills(int32 SequenceCount)
+void AShooterPlayerState::AddSequentialEliminations(int32 SequenceCount)
 {
 	if (SequentialKills.Contains(SequenceCount))
 	{
@@ -67,7 +67,7 @@ void AShooterPlayerState::AddSequentialKills(int32 SequenceCount)
 	}
 }
 
-void AShooterPlayerState::UpdateHighestStream(int32 StreakCount)
+void AShooterPlayerState::UpdateHighestStreak(int32 StreakCount)
 {
 	if (StreakCount > HighestStreak)
 	{
@@ -75,19 +75,19 @@ void AShooterPlayerState::UpdateHighestStream(int32 StreakCount)
 	}
 }
 
-void AShooterPlayerState::AddRevengeKill()
+void AShooterPlayerState::AddRevengeElimination()
 {
-	++RevengeKills;
+	++RevengeEliminations;
 }
 
-void AShooterPlayerState::AddDethroneKill()
+void AShooterPlayerState::AddDethroneElimination()
 {
-	++DethroneKills;
+	++DethroneEliminations;
 }
 
-void AShooterPlayerState::AddShowStopperKill()
+void AShooterPlayerState::AddShowStopperElimination()
 {
-	++ShowStopperKills;
+	++ShowStopperEliminations;
 }
 
 void AShooterPlayerState::GotFirstBlood()
@@ -98,4 +98,24 @@ void AShooterPlayerState::GotFirstBlood()
 void AShooterPlayerState::IsWinner()
 {
 	bWinner = true;
+}
+
+void AShooterPlayerState::SetOnStreak(bool bIsOnStreak)
+{
+	bOnStreak = bIsOnStreak;
+}
+
+bool AShooterPlayerState::IsOnStreak() const
+{
+	return bOnStreak;
+}
+
+void AShooterPlayerState::SetLastAttacker(APlayerState* AttackerPlayerState)
+{
+	LastAttacker = AttackerPlayerState;
+}
+
+APlayerState* AShooterPlayerState::GetLastAttacker() const
+{
+	return LastAttacker.IsValid() ? LastAttacker.Get() : nullptr;
 }
