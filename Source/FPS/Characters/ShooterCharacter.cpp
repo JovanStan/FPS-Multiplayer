@@ -159,8 +159,10 @@ bool AShooterCharacter::DoDamage_Implementation(float DamageAmount, AActor* Dama
 {
 	if (!IsValid(HealthComponent)) return false;
 	
-	HealthComponent->ChangeHealthByAmount(-DamageAmount, DamageInstigator);
-	
+	if (HealthComponent->ChangeHealthByAmount(-DamageAmount, DamageInstigator))
+	{
+		return true; // return true if Lethal
+	}
 	const int32 MontageSelection = FMath::RandRange(0, HitReacts.Num() - 1);
 	Multicast_HitReact(MontageSelection);
 	
