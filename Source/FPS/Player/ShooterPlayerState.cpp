@@ -119,3 +119,18 @@ APlayerState* AShooterPlayerState::GetLastAttacker() const
 {
 	return LastAttacker.IsValid() ? LastAttacker.Get() : nullptr;
 }
+
+void AShooterPlayerState::Client_ScoredElimination_Implementation(int32 EliminationScore)
+{
+	
+}
+
+void AShooterPlayerState::Client_SpecialElimination_Implementation( const ESpecialEliminationType& SpecialEliminationType, int32 SequentialEliminationCount, int32 StreakCount, int32 EliminationScore)
+{
+	
+}
+
+void AShooterPlayerState::Client_LostTheLead_Implementation()
+{
+	
+}

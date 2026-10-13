@@ -6,6 +6,8 @@
 #include "ShooterGameStateBase.generated.h"
 
 
+class AShooterPlayerState;
+
 UCLASS()
 class FPS_API AShooterGameStateBase : public AGameStateBase
 {
@@ -16,7 +18,12 @@ public:
 	
 	bool HasFirstBloodBeenHad() const { return bHasFirstBloodBeenHad; }
 	void UpdateLeader();
+	AShooterPlayerState* GetSoleLeader() const;
+	bool IsTiedForTheLead(AShooterPlayerState* PlayerState) const;
 	
 private:
 	bool bHasFirstBloodBeenHad;
+	
+	UPROPERTY()
+	TArray<TObjectPtr<AShooterPlayerState>> Leaders;
 };

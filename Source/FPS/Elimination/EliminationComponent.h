@@ -38,4 +38,6 @@ private:
 	void ProcessSequentialElimination(ESpecialEliminationType& SpecialEliminationType, AShooterPlayerState* AttackerPlayerState);
 	void ProcessStreaks(ESpecialEliminationType& SpecialEliminationType, AShooterPlayerState* AttackerPlayerState, AShooterPlayerState* VictimPlayerState);
 	void ProcessFirstBlood(AShooterGameStateBase* ShooterGameState, ESpecialEliminationType& SpecialEliminationType, AShooterPlayerState* AttackerPlayerState);
+	void UpdateLeaderStatus(AShooterGameStateBase* GameState, ESpecialEliminationType& SpecialEliminationType, AShooterPlayerState* AttackerPlayerState, AShooterPlayerState* VictimPlayerState);
+	bool HasSpecialEliminationTypes(const ESpecialEliminationType& SpecialEliminationType) const;
 };

@@ -6,6 +6,8 @@
 #include "ShooterPlayerState.generated.h"
 
 
+enum class ESpecialEliminationType : uint16;
+
 UCLASS()
 class FPS_API AShooterPlayerState : public APlayerState
 {
@@ -32,6 +34,15 @@ public:
 	
 	void SetLastAttacker(APlayerState* AttackerPlayerState);
 	APlayerState* GetLastAttacker() const;
+	
+	int32 GetScoredEliminations() const { return ScoredEliminations; }
+	
+	UFUNCTION(Client, Reliable)
+	void Client_LostTheLead();
+	UFUNCTION(Client, Reliable)
+	void Client_ScoredElimination(int32 EliminationScore);
+	UFUNCTION(Client, Reliable)
+	void Client_SpecialElimination(const ESpecialEliminationType& SpecialEliminationType, int32 SequentialEliminationCount, int32 StreakCount, int32 EliminationScore);
 	
 private:
 	int32 ScoredEliminations;

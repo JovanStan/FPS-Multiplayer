@@ -71,6 +71,16 @@ void UEliminationComponent::ProcessElimination(bool bHeadshot, AShooterPlayerSta
 	if (IsValid(ShooterGameState))
 	{
 		ProcessFirstBlood(ShooterGameState, SpecialEliminationType, AttackerPlayerState);
+		UpdateLeaderStatus(ShooterGameState, SpecialEliminationType, AttackerPlayerState, VictimPlayerState);
+	}
+	
+	if (HasSpecialEliminationTypes(SpecialEliminationType))
+	{
+		AttackerPlayerState->Client_SpecialElimination(SpecialEliminationType, SequentialElimination, Streak, AttackerPlayerState->GetScoredEliminations());
+	}
+	else
+	{
+		AttackerPlayerState->Client_ScoredElimination(AttackerPlayerState->GetScoredEliminations());
 	}
 }
 
@@ -137,6 +147,39 @@ void UEliminationComponent::ProcessFirstBlood(AShooterGameStateBase* ShooterGame
 		SpecialEliminationType |= ESpecialEliminationType::FirstBlood;
 		AttackerPlayerState->GotFirstBlood();
 	}
+}
+
+void UEliminationComponent::UpdateLeaderStatus(AShooterGameStateBase* GameState, ESpecialEliminationType& SpecialEliminationType, AShooterPlayerState* AttackerPlayerState, AShooterPlayerState* VictimPlayerState)
+{
+	AShooterPlayerState* LastLeader = GameState->GetSoleLeader();
+	const bool bAttackerWasTiedForLead = GameState->IsTiedForTheLead(AttackerPlayerState);
+	GameState->UpdateLeader();
+	
+	if (!bAttackerWasTiedForLead && GameState->IsTiedForTheLead(AttackerPlayerState))
+	{
+		SpecialEliminationType |= ESpecialEliminationType::TiedTheLead;
+	}
+	
+	if (IsValid(LastLeader) && LastLeader != GameState->GetSoleLeader())
+	{
+		LastLeader->Client_LostTheLead();
+		
+		if (VictimPlayerState == LastLeader)
+		{
+			SpecialEliminationType |= ESpecialEliminationType::Dethrone;
+			AttackerPlayerState->AddDethroneElimination();
+		}
+	}
+	
+	if (AttackerPlayerState != LastLeader && GameState->GetSoleLeader())
+	{
+		SpecialEliminationType |= ESpecialEliminationType::GainedTheLead;
+	}
+}
+
+bool UEliminationComponent::HasSpecialEliminationTypes(const ESpecialEliminationType& SpecialEliminationType) const
+{
+	return static_cast<uint16>(SpecialEliminationType) != 0;
 }
 
 
